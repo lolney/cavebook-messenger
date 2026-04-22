@@ -1,0 +1,84 @@
+.lab-masthead {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 2.2fr) auto;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 22px 28px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(238, 212, 172, 0.86), rgba(185, 138, 95, 0.96)),
+    linear-gradient(135deg, rgba(255, 248, 223, 0.34), rgba(143, 93, 55, 0.1));
+}
+
+.lab-masthead__glyphs,
+.lab-masthead__actions,
+.lab-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lab-masthead__actions,
+.lab-chip-row,
+.lab-button-row {
+  flex-direction: row;
+}
+
+.lab-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.8fr);
+  gap: 24px;
+}
+
+.lab-name {
+  margin: 0 0 6px;
+  font-family: var(--cb-font-display);
+  font-size: 1.15rem;
+}
+
+.lab-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--cb-line-soft);
+}
+
+.lab-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.lab-palette {
+  display: grid;
+  gap: 14px;
+}
+
+.lab-swatch {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lab-swatch__chip {
+  width: 64px;
+  height: 64px;
+  border: 2px solid rgba(66, 42, 26, 0.45);
+  border-radius: 18px;
+}
+
+.lab-chip-row,
+.lab-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+@media (max-width: 1100px) {
+  .lab-grid,
+  .lab-masthead {
+    grid-template-columns: 1fr;
+  }
+}

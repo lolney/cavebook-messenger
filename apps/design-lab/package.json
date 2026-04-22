@@ -1,0 +1,17 @@
+{
+  "name": "@cavebook/design-lab",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint src --ext .ts,.tsx",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@cavebook/ui": "0.1.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  }
+}
