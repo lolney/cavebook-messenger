@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Flame,
   Hand,
@@ -34,6 +34,8 @@ type ChatMessage = {
   side: 'incoming' | 'outgoing'
   body: string
 }
+
+const MESSAGE_STORAGE_KEY = 'cavebook.messages'
 
 const initialMessages: ChatMessage[] = [
   {
@@ -127,12 +129,12 @@ function loadMessages(): ChatMessage[] {
     return initialMessages
   }
 
-  const storedMessages = window.localStorage.getItem('cavebook.messages')
-  if (!storedMessages) {
-    return initialMessages
-  }
-
   try {
+    const storedMessages = window.localStorage.getItem(MESSAGE_STORAGE_KEY)
+    if (!storedMessages) {
+      return initialMessages
+    }
+
     const parsedMessages: unknown = JSON.parse(storedMessages)
     if (!Array.isArray(parsedMessages)) {
       return initialMessages
@@ -155,6 +157,14 @@ function loadMessages(): ChatMessage[] {
     return validMessages.length ? validMessages : initialMessages
   } catch {
     return initialMessages
+  }
+}
+
+function persistMessages(messages: ChatMessage[]) {
+  try {
+    window.localStorage.setItem(MESSAGE_STORAGE_KEY, JSON.stringify(messages))
+  } catch {
+    // Storage can be unavailable in restricted browser contexts; the chat still works in memory.
   }
 }
 
@@ -188,7 +198,7 @@ export function App() {
   }, [page])
 
   useEffect(() => {
-    window.localStorage.setItem('cavebook.messages', JSON.stringify(messages))
+    persistMessages(messages)
   }, [messages])
 
   const handleSendMessage = (body: string) => {
@@ -274,6 +284,16 @@ function MessagesPage({
   onSendMessage: (body: string) => void
 }) {
   const [draft, setDraft] = useState('')
+  const threadRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const threadElement = threadRef.current
+    if (!threadElement) {
+      return
+    }
+
+    threadElement.scrollTop = threadElement.scrollHeight
+  }, [messages])
 
   const sendDraft = (body: string) => {
     onSendMessage(body)
@@ -312,7 +332,7 @@ function MessagesPage({
           <div className="messenger-canvas__art messenger-canvas__art--ghost" />
           <div className="messenger-canvas__art messenger-canvas__art--prints" aria-hidden="true" />
 
-          <div className="messenger-canvas__thread" aria-live="polite">
+          <div className="messenger-canvas__thread" ref={threadRef} aria-live="polite">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
