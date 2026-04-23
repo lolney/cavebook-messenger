@@ -52,6 +52,13 @@ const initialMessages: ChatMessage[] = [
   },
 ]
 
+const replyFragments = [
+  'I asked because the fish portrait is still the strongest one.',
+  'The cave-painting atmosphere is working, but the sidebar stone still needs more depth.',
+  'Try keeping the tablet stack tighter so it feels pinned instead of pasted on.',
+  'That tracks. The hand-carved framing is doing more of the work now.',
+] as const
+
 const pageTabs = [
   { id: 'messages' as const, label: 'Messages', icon: ScrollText },
   { id: 'profile' as const, label: 'Profile', icon: User },
@@ -173,6 +180,8 @@ export function App() {
     typeof window === 'undefined' ? 'messages' : pageFromHash(window.location.hash),
   )
   const [messages, setMessages] = useState<ChatMessage[]>(loadMessages)
+  const [pendingReply, setPendingReply] = useState(false)
+  const replyTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     const syncPageFromLocation = () => {
@@ -201,16 +210,59 @@ export function App() {
     persistMessages(messages)
   }, [messages])
 
+  useEffect(() => {
+    return () => {
+      if (replyTimeoutRef.current !== null) {
+        window.clearTimeout(replyTimeoutRef.current)
+      }
+    }
+  }, [])
+
   const handleSendMessage = (body: string) => {
-    setMessages((currentMessages) => [
-      ...currentMessages,
-      {
-        id: `local-${Date.now()}-${currentMessages.length}`,
-        author: 'You',
-        side: 'outgoing',
-        body,
-      },
-    ])
+    setMessages((currentMessages) => {
+      const nextMessages = [
+        ...currentMessages,
+        {
+          id: `local-${Date.now()}-${currentMessages.length}`,
+          author: 'You',
+          side: 'outgoing',
+          body,
+        } satisfies ChatMessage,
+      ]
+
+      const replyIndex =
+        nextMessages.filter((message) => message.author === 'Ted Olney-Bell').length % replyFragments.length
+
+      if (replyTimeoutRef.current !== null) {
+        window.clearTimeout(replyTimeoutRef.current)
+      }
+
+      setPendingReply(true)
+      replyTimeoutRef.current = window.setTimeout(() => {
+        setMessages((latestMessages) => [
+          ...latestMessages,
+          {
+            id: `ted-${Date.now()}-${latestMessages.length}`,
+            author: 'Ted Olney-Bell',
+            side: 'incoming',
+            body: replyFragments[replyIndex],
+          },
+        ])
+        setPendingReply(false)
+        replyTimeoutRef.current = null
+      }, 900)
+
+      return nextMessages
+    })
+  }
+
+  const handleResetMessages = () => {
+    if (replyTimeoutRef.current !== null) {
+      window.clearTimeout(replyTimeoutRef.current)
+      replyTimeoutRef.current = null
+    }
+    setPendingReply(false)
+    setMessages(initialMessages)
   }
 
   return (
@@ -266,7 +318,15 @@ export function App() {
           })}
         </nav>
 
-        {page === 'messages' ? <MessagesPage messages={messages} onSendMessage={handleSendMessage} onNavigate={setPage} /> : null}
+        {page === 'messages' ? (
+          <MessagesPage
+            messages={messages}
+            pendingReply={pendingReply}
+            onSendMessage={handleSendMessage}
+            onResetMessages={handleResetMessages}
+            onNavigate={setPage}
+          />
+        ) : null}
         {page === 'profile' ? <ProfilePage onNavigate={setPage} /> : null}
         {page === 'artifacts' ? <ArtifactsPage onNavigate={setPage} /> : null}
       </div>
@@ -276,11 +336,15 @@ export function App() {
 
 function MessagesPage({
   messages,
+  pendingReply,
   onNavigate,
+  onResetMessages,
   onSendMessage,
 }: {
   messages: ChatMessage[]
+  pendingReply: boolean
   onNavigate: (page: PageId) => void
+  onResetMessages: () => void
   onSendMessage: (body: string) => void
 }) {
   const [draft, setDraft] = useState('')
@@ -310,7 +374,7 @@ function MessagesPage({
               <h2 className="messenger-contact-strip__name">Ted Olney-Bell</h2>
               <p className="messenger-contact-strip__status">
                 <span className="messenger-contact-strip__status-dot" />
-                Active now
+                {pendingReply ? 'Scratching a reply…' : 'Active now'}
               </p>
             </div>
           </div>
@@ -322,7 +386,14 @@ function MessagesPage({
             <Button variant="utility" size="icon" className="messenger-toolbar-button" aria-label="Video call">
               <Video size={20} />
             </Button>
-            <Button variant="utility" size="icon" className="messenger-toolbar-button" aria-label="More options">
+            <Button
+              variant="utility"
+              size="icon"
+              className="messenger-toolbar-button"
+              aria-label="Reset chat"
+              title="Reset chat"
+              onClick={onResetMessages}
+            >
               <MoreHorizontal size={20} />
             </Button>
           </div>
