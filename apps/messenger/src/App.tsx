@@ -26,6 +26,8 @@ import {
 import './app.css'
 
 type PageId = 'messages' | 'profile' | 'artifacts'
+type InspectorSectionId = 'chatInfo' | 'customizeChat' | 'mediaFiles' | 'privacySupport'
+type NoticeTone = 'neutral' | 'active'
 
 type ChatMessage = {
   id: string
@@ -34,7 +36,13 @@ type ChatMessage = {
   body: string
 }
 
+type AppNotice = {
+  text: string
+  tone: NoticeTone
+}
+
 const MESSAGE_STORAGE_KEY = 'cavebook.messages'
+const PREFERENCES_STORAGE_KEY = 'cavebook.preferences'
 
 const initialMessages: ChatMessage[] = [
   {
@@ -65,10 +73,10 @@ const pageTabs = [
 ] as const
 
 const inspectorSections = [
-  { label: 'Chat info', art: 'chatInfo' as const },
-  { label: 'Customize chat', art: 'customizeChat' as const },
-  { label: 'Media & files', art: 'mediaFiles' as const },
-  { label: 'Privacy & support', art: 'privacySupport' as const },
+  { id: 'chatInfo' as const, label: 'Chat info', art: 'chatInfo' as const },
+  { id: 'customizeChat' as const, label: 'Customize chat', art: 'customizeChat' as const },
+  { id: 'mediaFiles' as const, label: 'Media & files', art: 'mediaFiles' as const },
+  { id: 'privacySupport' as const, label: 'Privacy & support', art: 'privacySupport' as const },
 ] as const
 
 const artifacts = [
@@ -125,6 +133,24 @@ const collectionCards = [
   },
 ] as const
 
+const inspectorDetails: Record<InspectorSectionId, string> = {
+  chatInfo: 'Local-only thread with Ted. Messages stay in this browser and can be reset from the more button.',
+  customizeChat:
+    'The visual shell, reply loop, and tablet stack are active here. This build has no remote theme sync.',
+  mediaFiles: 'Current shelf includes the soot feed tablet, the shared-chat tablet, and the Codex workbench tablet.',
+  privacySupport: 'No server sync, no remote account state, and no network-backed actions. This app runs entirely locally.',
+}
+
+function defaultPreferences() {
+  return {
+    isMuted: false,
+    isFollowing: false,
+    callMode: null as 'voice' | 'video' | null,
+    openInspectorSection: null as InspectorSectionId | null,
+    artifactFilter: 'all' as 'all' | 'notes' | 'marks' | 'logs',
+  }
+}
+
 function pageFromHash(hash: string): PageId {
   const normalized = hash.replace(/^#/, '')
   return normalized === 'profile' || normalized === 'artifacts' ? normalized : 'messages'
@@ -174,13 +200,64 @@ function persistMessages(messages: ChatMessage[]) {
   }
 }
 
+function loadPreferences() {
+  if (typeof window === 'undefined') {
+    return defaultPreferences()
+  }
+
+  try {
+    const storedPreferences = window.localStorage.getItem(PREFERENCES_STORAGE_KEY)
+    if (!storedPreferences) {
+      return defaultPreferences()
+    }
+
+    const parsedPreferences: unknown = JSON.parse(storedPreferences)
+    if (!parsedPreferences || typeof parsedPreferences !== 'object') {
+      return defaultPreferences()
+    }
+
+    const candidate = parsedPreferences as Partial<ReturnType<typeof defaultPreferences>>
+    return {
+      isMuted: candidate.isMuted === true,
+      isFollowing: candidate.isFollowing === true,
+      callMode: candidate.callMode === 'voice' || candidate.callMode === 'video' ? candidate.callMode : null,
+      openInspectorSection:
+        candidate.openInspectorSection === 'chatInfo' ||
+        candidate.openInspectorSection === 'customizeChat' ||
+        candidate.openInspectorSection === 'mediaFiles' ||
+        candidate.openInspectorSection === 'privacySupport'
+          ? candidate.openInspectorSection
+          : null,
+      artifactFilter:
+        candidate.artifactFilter === 'notes' ||
+        candidate.artifactFilter === 'marks' ||
+        candidate.artifactFilter === 'logs'
+          ? candidate.artifactFilter
+          : 'all',
+    }
+  } catch {
+    return defaultPreferences()
+  }
+}
+
+function persistPreferences(preferences: ReturnType<typeof defaultPreferences>) {
+  try {
+    window.localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(preferences))
+  } catch {
+    // Preferences stay in memory when storage is unavailable.
+  }
+}
+
 export function App() {
+  const [preferences, setPreferences] = useState(loadPreferences)
   const [page, setPage] = useState<PageId>(() =>
     typeof window === 'undefined' ? 'messages' : pageFromHash(window.location.hash),
   )
   const [messages, setMessages] = useState<ChatMessage[]>(loadMessages)
   const [pendingReply, setPendingReply] = useState(false)
+  const [notice, setNotice] = useState<AppNotice | null>(null)
   const replyTimeoutRef = useRef<number | null>(null)
+  const noticeTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     const syncPageFromLocation = () => {
@@ -210,12 +287,32 @@ export function App() {
   }, [messages])
 
   useEffect(() => {
+    persistPreferences(preferences)
+  }, [preferences])
+
+  useEffect(() => {
     return () => {
       if (replyTimeoutRef.current !== null) {
         window.clearTimeout(replyTimeoutRef.current)
       }
+      if (noticeTimeoutRef.current !== null) {
+        window.clearTimeout(noticeTimeoutRef.current)
+      }
     }
   }, [])
+
+  const showNotice = (text: string, tone: NoticeTone = 'neutral') => {
+    setNotice({ text, tone })
+
+    if (noticeTimeoutRef.current !== null) {
+      window.clearTimeout(noticeTimeoutRef.current)
+    }
+
+    noticeTimeoutRef.current = window.setTimeout(() => {
+      setNotice(null)
+      noticeTimeoutRef.current = null
+    }, 2400)
+  }
 
   const handleSendMessage = (body: string) => {
     setMessages((currentMessages) => {
@@ -262,6 +359,68 @@ export function App() {
     }
     setPendingReply(false)
     setMessages(initialMessages)
+    showNotice('Thread reset to the seeded camp exchange.')
+  }
+
+  const handleStartCall = (mode: 'voice' | 'video') => {
+    const isClosing = preferences.callMode === mode
+
+    setPreferences((current) => ({
+      ...current,
+      callMode: isClosing ? null : mode,
+    }))
+
+    showNotice(
+      isClosing
+        ? mode === 'voice'
+          ? 'Voice ritual ended.'
+          : 'Vision fire ended.'
+        : mode === 'voice'
+          ? 'Voice ritual started locally. No remote call is placed.'
+          : 'Vision fire started locally. No remote video session is placed.',
+      'active',
+    )
+  }
+
+  const handleToggleMute = () => {
+    const nextMuted = !preferences.isMuted
+    setPreferences((current) => ({ ...current, isMuted: nextMuted }))
+    showNotice(nextMuted ? 'Ted is muted locally.' : 'Ted is unmuted locally.')
+  }
+
+  const handleToggleFollow = () => {
+    const nextFollowing = !preferences.isFollowing
+    setPreferences((current) => ({ ...current, isFollowing: nextFollowing }))
+    showNotice(nextFollowing ? 'You are now following Ted.' : 'You stopped following Ted.')
+  }
+
+  const handleToggleInspectorSection = (sectionId: InspectorSectionId) => {
+    setPreferences((current) => ({
+      ...current,
+      openInspectorSection: current.openInspectorSection === sectionId ? null : sectionId,
+    }))
+  }
+
+  const handleBrowseArtifacts = () => {
+    const nextFilter =
+      preferences.artifactFilter === 'all'
+        ? 'notes'
+        : preferences.artifactFilter === 'notes'
+          ? 'marks'
+          : preferences.artifactFilter === 'marks'
+            ? 'logs'
+            : 'all'
+
+    setPreferences((current) => ({
+      ...current,
+      artifactFilter: nextFilter,
+    }))
+
+    showNotice(
+      nextFilter === 'all'
+        ? 'Showing the full archive shelf.'
+        : `Browsing ${nextFilter === 'notes' ? 'Camp Notes' : nextFilter === 'marks' ? 'Profile Marks' : 'Ritual Logs'}.`,
+    )
   }
 
   return (
@@ -270,6 +429,11 @@ export function App() {
       <div className="cb-ambient cb-ambient--right" />
 
       <div className="messenger-shell cb-frame">
+        {notice ? (
+          <div className={`messenger-notice messenger-notice--${notice.tone}`} aria-live="polite" role="status">
+            {notice.text}
+          </div>
+        ) : null}
         <div className="messenger-shell__post messenger-shell__post--left" aria-hidden="true" />
         <div className="messenger-shell__post messenger-shell__post--right" aria-hidden="true" />
         <div className="messenger-shell__rope messenger-shell__rope--left" aria-hidden="true" />
@@ -314,32 +478,62 @@ export function App() {
 
         {page === 'messages' ? (
           <MessagesPage
+            callMode={preferences.callMode}
+            isMuted={preferences.isMuted}
             messages={messages}
+            openInspectorSection={preferences.openInspectorSection}
             pendingReply={pendingReply}
             onSendMessage={handleSendMessage}
             onResetMessages={handleResetMessages}
             onNavigate={setPage}
+            onStartCall={handleStartCall}
+            onToggleInspectorSection={handleToggleInspectorSection}
+            onToggleMute={handleToggleMute}
           />
         ) : null}
-        {page === 'profile' ? <ProfilePage onNavigate={setPage} /> : null}
-        {page === 'artifacts' ? <ArtifactsPage onNavigate={setPage} /> : null}
+        {page === 'profile' ? (
+          <ProfilePage
+            isFollowing={preferences.isFollowing}
+            onNavigate={setPage}
+            onToggleFollow={handleToggleFollow}
+          />
+        ) : null}
+        {page === 'artifacts' ? (
+          <ArtifactsPage
+            artifactFilter={preferences.artifactFilter}
+            onBrowseArtifacts={handleBrowseArtifacts}
+            onNavigate={setPage}
+          />
+        ) : null}
       </div>
     </div>
   )
 }
 
 function MessagesPage({
+  callMode,
+  isMuted,
   messages,
+  openInspectorSection,
   pendingReply,
   onNavigate,
   onResetMessages,
   onSendMessage,
+  onStartCall,
+  onToggleInspectorSection,
+  onToggleMute,
 }: {
+  callMode: 'voice' | 'video' | null
+  isMuted: boolean
   messages: ChatMessage[]
+  openInspectorSection: InspectorSectionId | null
   pendingReply: boolean
   onNavigate: (page: PageId) => void
   onResetMessages: () => void
   onSendMessage: (body: string) => void
+  onStartCall: (mode: 'voice' | 'video') => void
+  onToggleInspectorSection: (sectionId: InspectorSectionId) => void
+  onToggleMute: () => void
 }) {
   const [draft, setDraft] = useState('')
   const threadRef = useRef<HTMLDivElement>(null)
@@ -369,15 +563,32 @@ function MessagesPage({
               <p className="messenger-contact-strip__status">
                 <span className="messenger-contact-strip__status-dot" />
                 {pendingReply ? 'Scratching a reply…' : 'Active now'}
+                {isMuted ? ' · muted locally' : ''}
+                {callMode === 'voice' ? ' · voice ritual open' : ''}
+                {callMode === 'video' ? ' · vision fire open' : ''}
               </p>
             </div>
           </div>
 
           <div className="messenger-contact-strip__actions">
-            <Button variant="utility" size="icon" className="messenger-toolbar-button" aria-label="Call">
+            <Button
+              variant="utility"
+              size="icon"
+              className="messenger-toolbar-button"
+              aria-label="Call"
+              aria-pressed={callMode === 'voice'}
+              onClick={() => onStartCall('voice')}
+            >
               <Phone size={20} />
             </Button>
-            <Button variant="utility" size="icon" className="messenger-toolbar-button" aria-label="Video call">
+            <Button
+              variant="utility"
+              size="icon"
+              className="messenger-toolbar-button"
+              aria-label="Video call"
+              aria-pressed={callMode === 'video'}
+              onClick={() => onStartCall('video')}
+            >
               <Video size={20} />
             </Button>
             <Button
@@ -512,9 +723,15 @@ function MessagesPage({
               <Hand size={20} />
               <span>Profile</span>
             </Button>
-            <Button variant="ghost" className="messenger-monolith__action" aria-label="Mute">
+            <Button
+              variant="ghost"
+              className="messenger-monolith__action"
+              aria-label="Mute"
+              aria-pressed={isMuted}
+              onClick={onToggleMute}
+            >
               <Flame size={20} />
-              <span>Mute</span>
+              <span>{isMuted ? 'Unmute' : 'Mute'}</span>
             </Button>
             <Button
               variant="ghost"
@@ -529,7 +746,20 @@ function MessagesPage({
 
           <div className="messenger-monolith__sections">
             {inspectorSections.map((section) => (
-              <InspectorSection key={section.label} label={section.label} art={section.art} />
+              <div key={section.label} className="messenger-monolith__section-block">
+                <InspectorSection
+                  aria-expanded={openInspectorSection === section.id}
+                  className={openInspectorSection === section.id ? 'is-open' : undefined}
+                  label={section.label}
+                  art={section.art}
+                  onClick={() => onToggleInspectorSection(section.id)}
+                />
+                {openInspectorSection === section.id ? (
+                  <div className="messenger-monolith__section-detail">
+                    <p>{inspectorDetails[section.id]}</p>
+                  </div>
+                ) : null}
+              </div>
             ))}
           </div>
         </Surface>
@@ -538,7 +768,15 @@ function MessagesPage({
   )
 }
 
-function ProfilePage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
+function ProfilePage({
+  isFollowing,
+  onNavigate,
+  onToggleFollow,
+}: {
+  isFollowing: boolean
+  onNavigate: (page: PageId) => void
+  onToggleFollow: () => void
+}) {
   return (
     <main className="messenger-main">
       <section className="messenger-stage profile-stage">
@@ -598,7 +836,7 @@ function ProfilePage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
 
           <div className="profile-inspector__stats">
             <div className="profile-stat">
-              <span className="profile-stat__value">92</span>
+              <span className="profile-stat__value">{isFollowing ? '93' : '92'}</span>
               <span className="profile-stat__label">Friends</span>
             </div>
             <div className="profile-stat">
@@ -616,9 +854,14 @@ function ProfilePage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
               <ScrollText size={20} />
               <span>Messages</span>
             </Button>
-            <Button variant="ghost" className="messenger-monolith__action">
+            <Button
+              variant="ghost"
+              className="messenger-monolith__action"
+              aria-pressed={isFollowing}
+              onClick={onToggleFollow}
+            >
               <User size={20} />
-              <span>Follow</span>
+              <span>{isFollowing ? 'Following' : 'Follow'}</span>
             </Button>
             <Button variant="ghost" className="messenger-monolith__action" onClick={() => onNavigate('artifacts')}>
               <Mountain size={20} />
@@ -631,7 +874,26 @@ function ProfilePage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
   )
 }
 
-function ArtifactsPage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
+function ArtifactsPage({
+  artifactFilter,
+  onBrowseArtifacts,
+  onNavigate,
+}: {
+  artifactFilter: 'all' | 'notes' | 'marks' | 'logs'
+  onBrowseArtifacts: () => void
+  onNavigate: (page: PageId) => void
+}) {
+  const filteredCards =
+    artifactFilter === 'all'
+      ? collectionCards
+      : collectionCards.filter((card) =>
+          artifactFilter === 'notes'
+            ? card.title === 'Camp Notes'
+            : artifactFilter === 'marks'
+              ? card.title === 'Profile Marks'
+              : card.title === 'Ritual Logs',
+        )
+
   return (
     <main className="messenger-main">
       <section className="messenger-stage artifacts-stage">
@@ -647,7 +909,7 @@ function ArtifactsPage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
         </div>
 
         <div className="artifacts-stage__grid">
-          {collectionCards.map((card) => (
+          {filteredCards.map((card) => (
             <Surface key={card.title} variant="parchment" className="artifacts-card">
               <p className="artifacts-card__kicker">{card.kicker}</p>
               <p className="artifacts-card__title">{card.title}</p>
@@ -702,9 +964,9 @@ function ArtifactsPage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
               <User size={20} />
               <span>Profile</span>
             </Button>
-            <Button variant="ghost" className="messenger-monolith__action">
+            <Button variant="ghost" className="messenger-monolith__action" onClick={onBrowseArtifacts}>
               <Search size={20} />
-              <span>Browse</span>
+              <span>{artifactFilter === 'all' ? 'Browse' : 'Next shelf'}</span>
             </Button>
           </div>
         </Surface>

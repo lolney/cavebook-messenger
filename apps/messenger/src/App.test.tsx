@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { act } from 'react'
 import { afterEach, vi } from 'vitest'
 import { App } from './App'
@@ -67,5 +67,28 @@ describe('local messenger flow', () => {
     expect(screen.queryByText('Stored message from the previous fire.')).not.toBeInTheDocument()
     expect(screen.getByText('What was the prompt you used for the one of me holding the fish?')).toBeInTheDocument()
     expect(screen.getByText("It's very good at generating UIs.")).toBeInTheDocument()
+  })
+
+  it('makes local-only controls stateful instead of dead', async () => {
+    render(<App />)
+    const primaryNav = screen.getByRole('navigation', { name: 'Primary' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mute' }))
+    expect(screen.getByText('Ted is muted locally.')).toBeInTheDocument()
+    expect(screen.getByText(/Active now/)).toHaveTextContent('Active now · muted locally')
+    expect(screen.getByRole('button', { name: 'Mute' })).toHaveAttribute('aria-pressed', 'true')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Chat info' }))
+    expect(screen.getByText(/Messages stay in this browser/)).toBeInTheDocument()
+
+    fireEvent.click(within(primaryNav).getByRole('button', { name: 'Profile' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Follow' }))
+    expect(screen.getByText('93')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Following' })).toHaveAttribute('aria-pressed', 'true')
+
+    fireEvent.click(within(primaryNav).getByRole('button', { name: 'Artifacts' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Browse' }))
+    expect(screen.getByText('Browsing Camp Notes.')).toBeInTheDocument()
+    expect(screen.queryByText('Profile Marks')).not.toBeInTheDocument()
   })
 })
