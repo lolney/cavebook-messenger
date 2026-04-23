@@ -1047,18 +1047,19 @@
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
   gap: 18px;
-  padding: 22px;
+  padding: 26px 24px 24px;
   border: 3px solid rgba(88, 56, 33, 0.72);
   border-radius: 26px 30px 24px 32px;
   clip-path: polygon(1% 7%, 4% 2%, 96% 1%, 99% 8%, 99% 91%, 96% 98%, 3% 97%, 1% 90%);
   background:
-    radial-gradient(circle at 18% 12%, rgba(255, 244, 222, 0.14), transparent 22%),
-    radial-gradient(circle at 82% 72%, rgba(109, 65, 31, 0.16), transparent 26%),
-    linear-gradient(180deg, rgba(206, 171, 121, 0.9), rgba(141, 98, 59, 0.84));
+    radial-gradient(circle at 18% 12%, rgba(255, 244, 222, 0.18), transparent 22%),
+    radial-gradient(circle at 82% 72%, rgba(109, 65, 31, 0.22), transparent 26%),
+    linear-gradient(180deg, rgba(213, 179, 129, 0.94), rgba(136, 92, 55, 0.88));
   box-shadow:
     inset 0 1px 0 rgba(255, 240, 210, 0.18),
-    inset 0 -26px 34px rgba(83, 51, 29, 0.2),
-    0 20px 34px rgba(34, 18, 9, 0.22);
+    inset 0 -30px 38px rgba(83, 51, 29, 0.24),
+    0 22px 36px rgba(34, 18, 9, 0.24);
+  transform: rotate(-0.2deg);
 }
 
 .profile-stage__hero::after {
@@ -1068,6 +1069,19 @@
   border-radius: 26px;
   border: 1px solid rgba(113, 76, 45, 0.2);
   pointer-events: none;
+}
+
+.profile-stage__hero::before {
+  content: '';
+  position: absolute;
+  inset: 10px 14px auto auto;
+  width: 154px;
+  height: 8px;
+  opacity: 0.16;
+  background:
+    radial-gradient(circle at 14% 50%, rgba(82, 48, 26, 0.85) 0 18%, transparent 20%),
+    radial-gradient(circle at 50% 50%, rgba(82, 48, 26, 0.85) 0 18%, transparent 20%),
+    radial-gradient(circle at 86% 50%, rgba(82, 48, 26, 0.85) 0 18%, transparent 20%);
 }
 
 .profile-stage__portrait {
@@ -1084,7 +1098,7 @@
 .profile-stage__identity {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
 }
 
@@ -1104,22 +1118,23 @@
 .profile-stage__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .profile-memory-card {
-  min-height: 180px;
+  min-height: 188px;
+  padding: 18px 18px 20px;
   border-radius: 22px 18px 24px 20px;
-  clip-path: polygon(3% 8%, 10% 2%, 91% 3%, 98% 12%, 97% 88%, 91% 97%, 9% 96%, 2% 88%);
+  clip-path: polygon(3% 9%, 11% 2%, 90% 3%, 98% 12%, 97% 87%, 90% 97%, 8% 96%, 2% 89%);
   background:
-    radial-gradient(circle at 50% 8%, rgba(255, 244, 218, 0.16), transparent 34%),
-    radial-gradient(circle at 90% 84%, rgba(91, 52, 24, 0.1), transparent 32%),
-    linear-gradient(180deg, rgba(220, 181, 126, 0.96), rgba(178, 121, 69, 0.94));
+    radial-gradient(circle at 50% 8%, rgba(255, 244, 218, 0.18), transparent 34%),
+    radial-gradient(circle at 90% 84%, rgba(91, 52, 24, 0.14), transparent 32%),
+    linear-gradient(180deg, rgba(224, 188, 136, 0.98), rgba(169, 112, 65, 0.96));
   border: 3px solid rgba(101, 65, 38, 0.72);
   box-shadow:
-    0 16px 26px rgba(39, 21, 11, 0.2),
+    0 18px 28px rgba(39, 21, 11, 0.22),
     inset 0 1px 0 rgba(255, 240, 210, 0.18),
-    inset 0 -22px 28px rgba(91, 56, 31, 0.2);
+    inset 0 -24px 30px rgba(91, 56, 31, 0.24);
 }
 
 .profile-memory-card:nth-child(1) {
@@ -1139,20 +1154,25 @@
 .profile-post__title {
   margin: 0 0 10px;
   font-family: var(--cb-font-display);
-  font-size: 1.5rem;
-  color: rgba(42, 24, 14, 0.99);
+  font-size: 1.56rem;
+  color: rgba(31, 19, 12, 0.99);
 }
 
 .profile-stage__ledger {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 18px 18px 20px;
   border-radius: 26px 22px 28px 24px;
   clip-path: polygon(1% 5%, 4% 1%, 97% 2%, 99% 7%, 98% 93%, 95% 98%, 4% 97%, 1% 92%);
+  background:
+    radial-gradient(circle at 12% 10%, rgba(255, 245, 224, 0.12), transparent 22%),
+    linear-gradient(180deg, rgba(174, 160, 138, 0.92), rgba(136, 118, 96, 0.92));
   box-shadow:
     inset 0 1px 0 rgba(255, 244, 223, 0.18),
-    inset 0 -18px 22px rgba(65, 48, 34, 0.14),
-    0 14px 22px rgba(36, 20, 11, 0.12);
+    inset 0 -22px 24px rgba(65, 48, 34, 0.16),
+    0 16px 24px rgba(36, 20, 11, 0.14);
+  transform: rotate(0.18deg);
 }
 
 .profile-stage__ledger-head,
@@ -1172,14 +1192,14 @@
   padding: 16px 18px;
   border: 2px solid rgba(74, 55, 38, 0.72);
   border-radius: 16px 21px 15px 19px;
-  clip-path: polygon(2% 12%, 7% 4%, 94% 3%, 98% 13%, 97% 87%, 92% 96%, 7% 95%, 2% 86%);
+  clip-path: polygon(2% 10%, 8% 3%, 95% 4%, 98% 14%, 96% 87%, 92% 95%, 7% 96%, 2% 88%);
   background:
-    radial-gradient(circle at 30% 18%, rgba(255, 243, 218, 0.1), transparent 28%),
-    linear-gradient(180deg, rgba(193, 181, 158, 0.84), rgba(142, 126, 104, 0.8));
+    radial-gradient(circle at 30% 18%, rgba(255, 243, 218, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(199, 187, 165, 0.9), rgba(144, 128, 106, 0.86));
   box-shadow:
     inset 0 1px 0 rgba(255, 244, 223, 0.18),
-    inset 0 -14px 20px rgba(65, 48, 34, 0.18),
-    0 10px 16px rgba(36, 20, 11, 0.14);
+    inset 0 -16px 22px rgba(65, 48, 34, 0.2),
+    0 12px 18px rgba(36, 20, 11, 0.16);
 }
 
 .profile-inspector__stats {
@@ -1199,11 +1219,12 @@
   border-radius: 16px 18px 15px 17px;
   clip-path: polygon(5% 11%, 15% 3%, 88% 4%, 96% 17%, 95% 85%, 87% 96%, 13% 95%, 4% 82%);
   background:
-    radial-gradient(circle at 50% 10%, rgba(255, 242, 218, 0.16), transparent 32%),
-    linear-gradient(180deg, rgba(220, 201, 176, 0.3), rgba(176, 158, 136, 0.22));
+    radial-gradient(circle at 50% 10%, rgba(255, 242, 218, 0.18), transparent 32%),
+    linear-gradient(180deg, rgba(220, 201, 176, 0.4), rgba(170, 152, 130, 0.28));
   box-shadow:
     inset 0 1px 0 rgba(255, 245, 228, 0.12),
-    inset 0 -12px 18px rgba(56, 40, 28, 0.16);
+    inset 0 -14px 18px rgba(56, 40, 28, 0.18),
+    0 6px 10px rgba(33, 18, 11, 0.08);
 }
 
 .profile-stat__value {
@@ -1258,17 +1279,18 @@
 
 .artifacts-card {
   min-height: 220px;
+  padding: 18px 18px 22px;
   border: 3px solid rgba(95, 64, 38, 0.74);
   border-radius: 22px 18px 24px 20px;
   clip-path: polygon(3% 8%, 10% 2%, 91% 3%, 98% 12%, 97% 88%, 91% 97%, 9% 96%, 2% 88%);
   background:
-    radial-gradient(circle at 50% 8%, rgba(255, 244, 218, 0.16), transparent 34%),
-    radial-gradient(circle at 90% 84%, rgba(91, 52, 24, 0.12), transparent 32%),
-    linear-gradient(180deg, rgba(219, 181, 130, 0.96), rgba(171, 118, 71, 0.94));
+    radial-gradient(circle at 50% 8%, rgba(255, 244, 218, 0.18), transparent 34%),
+    radial-gradient(circle at 90% 84%, rgba(91, 52, 24, 0.14), transparent 32%),
+    linear-gradient(180deg, rgba(224, 188, 136, 0.98), rgba(166, 112, 67, 0.96));
   box-shadow:
-    0 16px 26px rgba(39, 21, 11, 0.2),
+    0 18px 28px rgba(39, 21, 11, 0.22),
     inset 0 1px 0 rgba(255, 240, 210, 0.18),
-    inset 0 -20px 26px rgba(91, 56, 31, 0.18);
+    inset 0 -22px 28px rgba(91, 56, 31, 0.22);
 }
 
 .artifacts-card,
@@ -1280,12 +1302,16 @@
   grid-column: 1 / span 3;
   display: grid;
   gap: 10px;
+  padding: 20px 18px 16px;
   border-radius: 24px 20px 26px 22px;
   clip-path: polygon(2% 6%, 6% 2%, 96% 2%, 99% 7%, 98% 92%, 94% 98%, 4% 97%, 1% 90%);
+  background:
+    radial-gradient(circle at 12% 10%, rgba(255, 245, 224, 0.12), transparent 22%),
+    linear-gradient(180deg, rgba(174, 160, 138, 0.94), rgba(133, 117, 97, 0.92));
   box-shadow:
     inset 0 1px 0 rgba(255, 244, 223, 0.18),
-    inset 0 -20px 24px rgba(65, 48, 34, 0.14),
-    0 14px 24px rgba(36, 20, 11, 0.12);
+    inset 0 -22px 26px rgba(65, 48, 34, 0.16),
+    0 16px 26px rgba(36, 20, 11, 0.14);
 }
 
 .artifacts-stage__table-head,
