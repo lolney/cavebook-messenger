@@ -8,7 +8,6 @@ import {
   Phone,
   Search,
   Send,
-  Sun,
   User,
   Video,
   ScrollText,
@@ -281,38 +280,18 @@ export function App() {
         <div className="messenger-shell__corner messenger-shell__corner--br" aria-hidden="true" />
 
         <header className="messenger-topbar">
-          <div className="messenger-topbar__plaque messenger-topbar__plaque--glyphs messenger-topbar__plaque--left cb-asset cb-asset--plaque-left">
-            <span>
-              <User size={18} />
-            </span>
-            <span>
-              <User size={18} />
-            </span>
-            <span>
-              <Hand size={18} />
-            </span>
-            <span>
-              <Mountain size={18} />
-            </span>
-          </div>
+          <div
+            className="messenger-topbar__plaque messenger-topbar__plaque--glyphs messenger-topbar__plaque--left cb-asset cb-asset--plaque-left"
+            aria-hidden="true"
+          />
           <div
             className="messenger-topbar__plaque messenger-topbar__plaque--title cb-asset cb-asset--plaque-title"
             aria-label="Facebook Messenger for Macintosh, 20,000 BCE"
           />
-          <div className="messenger-topbar__plaque messenger-topbar__plaque--glyphs messenger-topbar__plaque--right cb-asset cb-asset--plaque-right">
-            <span>
-              <Sun size={18} />
-            </span>
-            <span>
-              <Star size={18} />
-            </span>
-            <span>
-              <Mountain size={18} />
-            </span>
-            <span>
-              <Hand size={18} />
-            </span>
-          </div>
+          <div
+            className="messenger-topbar__plaque messenger-topbar__plaque--glyphs messenger-topbar__plaque--right cb-asset cb-asset--plaque-right"
+            aria-hidden="true"
+          />
         </header>
 
         <nav className="messenger-nav" aria-label="Primary">
