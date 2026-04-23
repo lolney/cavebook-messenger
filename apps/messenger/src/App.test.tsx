@@ -114,4 +114,25 @@ describe('local messenger flow', () => {
     expect(screen.queryByText('I asked because the fish portrait is still the strongest one.')).not.toBeInTheDocument()
     expect(window.localStorage.getItem('cavebook.messages')).toContain('Testing the quiet camp mode.')
   })
+
+  it('opens and closes a local call tray from the toolbar', async () => {
+    vi.useFakeTimers()
+
+    render(<App />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Call' }))
+    expect(screen.getByText('Voice ritual open')).toBeInTheDocument()
+    expect(screen.getByText(/Local-only session with Ted/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Call' })).toHaveAttribute('aria-pressed', 'true')
+
+    act(() => {
+      vi.advanceTimersByTime(2000)
+    })
+
+    expect(screen.getByText(/02:00|00:02/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'End ritual' }))
+    expect(screen.queryByText('Voice ritual open')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Call' })).toHaveAttribute('aria-pressed', 'false')
+  })
 })

@@ -403,6 +403,57 @@
   transform: rotate(0.08deg);
 }
 
+.messenger-call-tray {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 18px 10px;
+  padding: 10px 14px;
+  border: 2px solid rgba(118, 77, 45, 0.6);
+  border-radius: 18px 20px 16px 18px;
+  background:
+    linear-gradient(180deg, rgba(221, 184, 137, 0.9), rgba(176, 128, 80, 0.92)),
+    radial-gradient(circle at 18% 18%, rgba(255, 243, 216, 0.2), transparent 24%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 214, 0.3),
+    inset 0 -10px 16px rgba(98, 60, 31, 0.16),
+    0 8px 14px rgba(43, 24, 13, 0.12);
+}
+
+.messenger-call-tray__identity,
+.messenger-call-tray__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.messenger-call-tray__identity svg {
+  color: rgba(73, 39, 22, 0.92);
+}
+
+.messenger-call-tray__title,
+.messenger-call-tray__meta {
+  margin: 0;
+}
+
+.messenger-call-tray__title {
+  color: rgba(50, 26, 16, 0.94);
+  font-family: var(--cb-font-display);
+  font-size: 1rem;
+}
+
+.messenger-call-tray__meta {
+  color: rgba(78, 48, 30, 0.88);
+  font-size: 0.88rem;
+  letter-spacing: 0.02em;
+}
+
+.messenger-call-tray__actions .cb-button {
+  min-height: 42px;
+  padding-inline: 14px;
+}
+
 .messenger-contact-strip__identity,
 .messenger-contact-strip__actions,
 .messenger-contact-strip__status {

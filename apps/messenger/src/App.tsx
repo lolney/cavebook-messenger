@@ -256,8 +256,10 @@ export function App() {
   const [messages, setMessages] = useState<ChatMessage[]>(loadMessages)
   const [pendingReply, setPendingReply] = useState(false)
   const [notice, setNotice] = useState<AppNotice | null>(null)
+  const [callDurationSeconds, setCallDurationSeconds] = useState(0)
   const replyTimeoutRef = useRef<number | null>(null)
   const noticeTimeoutRef = useRef<number | null>(null)
+  const callTickRef = useRef<number | null>(null)
 
   useEffect(() => {
     const syncPageFromLocation = () => {
@@ -291,12 +293,37 @@ export function App() {
   }, [preferences])
 
   useEffect(() => {
+    if (callTickRef.current !== null) {
+      window.clearInterval(callTickRef.current)
+      callTickRef.current = null
+    }
+
+    if (!preferences.callMode) {
+      return
+    }
+
+    callTickRef.current = window.setInterval(() => {
+      setCallDurationSeconds((current) => current + 1)
+    }, 1000)
+
+    return () => {
+      if (callTickRef.current !== null) {
+        window.clearInterval(callTickRef.current)
+        callTickRef.current = null
+      }
+    }
+  }, [preferences.callMode])
+
+  useEffect(() => {
     return () => {
       if (replyTimeoutRef.current !== null) {
         window.clearTimeout(replyTimeoutRef.current)
       }
       if (noticeTimeoutRef.current !== null) {
         window.clearTimeout(noticeTimeoutRef.current)
+      }
+      if (callTickRef.current !== null) {
+        window.clearInterval(callTickRef.current)
       }
     }
   }, [])
@@ -370,6 +397,8 @@ export function App() {
 
   const handleStartCall = (mode: 'voice' | 'video') => {
     const isClosing = preferences.callMode === mode
+
+    setCallDurationSeconds(0)
 
     setPreferences((current) => ({
       ...current,
@@ -493,6 +522,7 @@ export function App() {
 
         {page === 'messages' ? (
           <MessagesPage
+            callDurationSeconds={callDurationSeconds}
             callMode={preferences.callMode}
             isMuted={preferences.isMuted}
             messages={messages}
@@ -526,6 +556,7 @@ export function App() {
 }
 
 function MessagesPage({
+  callDurationSeconds,
   callMode,
   isMuted,
   messages,
@@ -538,6 +569,7 @@ function MessagesPage({
   onToggleInspectorSection,
   onToggleMute,
 }: {
+  callDurationSeconds: number
   callMode: 'voice' | 'video' | null
   isMuted: boolean
   messages: ChatMessage[]
@@ -552,6 +584,10 @@ function MessagesPage({
 }) {
   const [draft, setDraft] = useState('')
   const threadRef = useRef<HTMLDivElement>(null)
+  const activeCallLabel = callMode === 'video' ? 'Vision fire' : 'Voice ritual'
+  const formattedCallDuration = `${String(Math.floor(callDurationSeconds / 60)).padStart(2, '0')}:${String(
+    callDurationSeconds % 60,
+  ).padStart(2, '0')}`
 
   useEffect(() => {
     const threadElement = threadRef.current
@@ -618,6 +654,34 @@ function MessagesPage({
             </Button>
           </div>
         </div>
+
+        {callMode ? (
+          <div className="messenger-call-tray" role="status" aria-live="polite">
+            <div className="messenger-call-tray__identity">
+              {callMode === 'video' ? <Video size={18} /> : <Phone size={18} />}
+              <div>
+                <p className="messenger-call-tray__title">{activeCallLabel} open</p>
+                <p className="messenger-call-tray__meta">
+                  Local-only session with Ted · {formattedCallDuration}
+                  {isMuted ? ' · Ted muted' : ''}
+                </p>
+              </div>
+            </div>
+
+            <div className="messenger-call-tray__actions">
+              {!isMuted ? (
+                <Button variant="utility" onClick={onToggleMute}>
+                  <Flame size={16} />
+                  Silence Ted
+                </Button>
+              ) : null}
+              <Button variant="utility" onClick={() => onStartCall(callMode)}>
+                <MoreHorizontal size={16} />
+                End ritual
+              </Button>
+            </div>
+          </div>
+        ) : null}
 
         <div className="messenger-canvas">
           <div className="messenger-canvas__art messenger-canvas__art--ghost" />
