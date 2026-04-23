@@ -203,7 +203,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(420px, 1.4fr) minmax(0, 1fr);
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 6px;
   position: relative;
 }
 
@@ -264,30 +264,36 @@
 }
 
 .messenger-nav {
+  position: absolute;
+  top: 108px;
+  left: 54px;
+  z-index: 12;
   display: flex;
-  gap: 10px;
-  padding: 0 18px 14px;
+  gap: 7px;
+  padding: 0;
+  transform: rotate(-0.25deg);
 }
 
 .messenger-nav__tab {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  min-height: 54px;
-  padding: 0 18px;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
   border: 2px solid rgba(108, 74, 46, 0.68);
-  border-radius: 18px 18px 16px 16px;
+  border-radius: 13px 16px 12px 15px;
   background:
-    radial-gradient(circle at 30% 18%, rgba(255, 243, 218, 0.16), transparent 28%),
-    linear-gradient(180deg, rgba(218, 184, 141, 0.88), rgba(176, 132, 86, 0.92));
+    radial-gradient(circle at 30% 18%, rgba(255, 243, 218, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(198, 153, 102, 0.94), rgba(134, 92, 57, 0.96));
   color: rgba(69, 44, 27, 0.94);
   font-family: var(--cb-font-display);
-  font-size: 1.18rem;
+  font-size: 0.98rem;
   cursor: pointer;
+  clip-path: polygon(3% 12%, 11% 4%, 88% 3%, 98% 16%, 97% 86%, 88% 97%, 12% 96%, 2% 84%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 238, 210, 0.22),
-    inset 0 -8px 12px rgba(104, 71, 44, 0.16),
-    0 8px 14px rgba(39, 21, 11, 0.14);
+    inset 0 1px 0 rgba(255, 238, 210, 0.18),
+    inset 0 -7px 10px rgba(82, 52, 31, 0.2),
+    0 8px 14px rgba(39, 21, 11, 0.22);
 }
 
 .messenger-nav__tab svg {
@@ -298,7 +304,7 @@
   transform: translateY(1px);
   background:
     radial-gradient(circle at 30% 18%, rgba(255, 243, 218, 0.14), transparent 28%),
-    linear-gradient(180deg, rgba(194, 145, 95, 0.94), rgba(143, 100, 64, 0.94));
+    linear-gradient(180deg, rgba(175, 120, 72, 0.98), rgba(102, 66, 39, 0.98));
   color: rgba(34, 20, 12, 0.98);
   box-shadow:
     inset 0 1px 0 rgba(255, 239, 211, 0.18),
@@ -310,6 +316,7 @@
   display: grid;
   grid-template-columns: minmax(0, 2.18fr) minmax(280px, 0.86fr);
   gap: 12px;
+  margin-top: 0;
 }
 
 .messenger-stage {
@@ -379,7 +386,8 @@
   min-width: 68px;
   min-height: 68px;
   border: 2px solid rgba(106, 74, 48, 0.66);
-  border-radius: 18px 18px 16px 16px;
+  border-radius: 17px 19px 15px 18px;
+  clip-path: polygon(7% 11%, 17% 4%, 84% 5%, 96% 17%, 95% 84%, 84% 96%, 13% 94%, 5% 82%);
   background:
     radial-gradient(circle at 30% 18%, rgba(255, 240, 208, 0.18), transparent 30%),
     linear-gradient(180deg, rgba(223, 190, 147, 0.92), rgba(186, 144, 97, 0.94));
@@ -500,23 +508,61 @@
   filter: blur(0.3px);
 }
 
-.messenger-canvas__bubble {
+.messenger-canvas__thread {
   position: absolute;
+  top: 18px;
+  left: 26px;
+  right: 70px;
+  z-index: 6;
+  display: flex;
+  max-height: 280px;
+  flex-direction: column;
+  gap: 12px;
+  overflow: auto;
+  padding: 2px 8px 12px 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(91, 58, 34, 0.46) transparent;
+}
+
+.messenger-canvas__thread::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messenger-canvas__thread::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(91, 58, 34, 0.42);
+}
+
+.messenger-canvas__bubble {
+  position: relative;
   max-width: 420px;
   z-index: 5;
 }
 
 .messenger-canvas__bubble--question {
-  top: 20px;
-  left: 26px;
+  top: auto;
+  left: auto;
   transform: none;
 }
 
 .messenger-canvas__bubble--answer {
-  top: 78px;
-  right: 136px;
+  top: auto;
+  right: auto;
   max-width: 320px;
   transform: none;
+}
+
+.messenger-canvas__thread .messenger-canvas__bubble {
+  width: fit-content;
+  max-width: min(430px, 74%);
+}
+
+.messenger-canvas__thread .cb-message--outgoing {
+  align-self: flex-end;
+}
+
+.messenger-canvas__thread .cb-message--incoming {
+  align-self: flex-start;
 }
 
 .messenger-canvas__bubble .cb-message__author {
@@ -869,7 +915,7 @@
   min-height: 104px;
   padding: 14px 16px;
   border: 2px solid rgba(113, 81, 53, 0.58);
-  border-radius: 24px 26px 24px 24px;
+  border-radius: 24px 28px 23px 26px;
   background:
     radial-gradient(circle at 50% 18%, rgba(255, 247, 224, 0.28), transparent 34%),
     linear-gradient(180deg, rgba(236, 214, 179, 0.84), rgba(208, 175, 128, 0.9));
@@ -893,7 +939,8 @@
   min-width: 62px;
   min-height: 62px;
   border: 2px solid rgba(107, 74, 47, 0.66);
-  border-radius: 18px 18px 16px 16px;
+  border-radius: 16px 19px 14px 18px;
+  clip-path: polygon(8% 12%, 20% 4%, 84% 5%, 96% 18%, 94% 84%, 84% 96%, 14% 94%, 4% 82%);
   background:
     radial-gradient(circle at 30% 18%, rgba(255, 240, 208, 0.18), transparent 30%),
     linear-gradient(180deg, rgba(224, 191, 149, 0.92), rgba(184, 142, 96, 0.94));
@@ -935,14 +982,17 @@
   grid-template-columns: 220px minmax(0, 1fr);
   gap: 18px;
   padding: 22px;
-  border-radius: 30px;
+  border: 3px solid rgba(88, 56, 33, 0.72);
+  border-radius: 26px 30px 24px 32px;
+  clip-path: polygon(1% 7%, 4% 2%, 96% 1%, 99% 8%, 99% 91%, 96% 98%, 3% 97%, 1% 90%);
   background:
-    radial-gradient(circle at 18% 12%, rgba(255, 244, 222, 0.18), transparent 22%),
-    linear-gradient(180deg, rgba(228, 197, 156, 0.62), rgba(195, 155, 109, 0.5));
+    radial-gradient(circle at 18% 12%, rgba(255, 244, 222, 0.14), transparent 22%),
+    radial-gradient(circle at 82% 72%, rgba(109, 65, 31, 0.12), transparent 26%),
+    linear-gradient(180deg, rgba(211, 176, 126, 0.74), rgba(157, 112, 69, 0.62));
   box-shadow:
-    inset 0 1px 0 rgba(255, 240, 210, 0.2),
-    inset 0 -20px 28px rgba(126, 84, 48, 0.08),
-    0 16px 30px rgba(34, 18, 9, 0.12);
+    inset 0 1px 0 rgba(255, 240, 210, 0.18),
+    inset 0 -24px 32px rgba(83, 51, 29, 0.16),
+    0 18px 30px rgba(34, 18, 9, 0.18);
 }
 
 .profile-stage__hero::after {
@@ -993,14 +1043,29 @@
 
 .profile-memory-card {
   min-height: 180px;
+  border-radius: 22px 18px 24px 20px;
+  clip-path: polygon(3% 8%, 10% 2%, 91% 3%, 98% 12%, 97% 88%, 91% 97%, 9% 96%, 2% 88%);
   background:
-    radial-gradient(circle at 50% 8%, rgba(255, 244, 218, 0.22), transparent 34%),
-    linear-gradient(180deg, rgba(238, 209, 165, 0.92), rgba(205, 156, 104, 0.92));
-  border: 2px solid rgba(113, 77, 46, 0.64);
+    radial-gradient(circle at 50% 8%, rgba(255, 244, 218, 0.16), transparent 34%),
+    radial-gradient(circle at 90% 84%, rgba(91, 52, 24, 0.1), transparent 32%),
+    linear-gradient(180deg, rgba(220, 181, 126, 0.96), rgba(178, 121, 69, 0.94));
+  border: 3px solid rgba(101, 65, 38, 0.72);
   box-shadow:
-    0 12px 22px rgba(39, 21, 11, 0.12),
-    inset 0 1px 0 rgba(255, 240, 210, 0.24),
-    inset 0 -16px 20px rgba(126, 84, 48, 0.1);
+    0 14px 24px rgba(39, 21, 11, 0.18),
+    inset 0 1px 0 rgba(255, 240, 210, 0.18),
+    inset 0 -18px 22px rgba(91, 56, 31, 0.16);
+}
+
+.profile-memory-card:nth-child(1) {
+  transform: rotate(-0.35deg);
+}
+
+.profile-memory-card:nth-child(2) {
+  transform: rotate(0.25deg);
+}
+
+.profile-memory-card:nth-child(3) {
+  transform: rotate(-0.18deg);
 }
 
 .profile-memory-card__title,
@@ -1016,6 +1081,8 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  border-radius: 26px 22px 28px 24px;
+  clip-path: polygon(1% 5%, 4% 1%, 97% 2%, 99% 7%, 98% 93%, 95% 98%, 4% 97%, 1% 92%);
 }
 
 .profile-stage__ledger-head,
@@ -1033,14 +1100,16 @@
 
 .profile-post {
   padding: 16px 18px;
-  border: 2px solid rgba(97, 71, 45, 0.58);
-  border-radius: 18px 20px 18px 22px;
+  border: 2px solid rgba(78, 59, 41, 0.66);
+  border-radius: 16px 21px 15px 19px;
+  clip-path: polygon(2% 12%, 7% 4%, 94% 3%, 98% 13%, 97% 87%, 92% 96%, 7% 95%, 2% 86%);
   background:
-    radial-gradient(circle at 30% 18%, rgba(255, 243, 218, 0.14), transparent 28%),
-    linear-gradient(180deg, rgba(238, 223, 198, 0.58), rgba(210, 191, 164, 0.54));
+    radial-gradient(circle at 30% 18%, rgba(255, 243, 218, 0.1), transparent 28%),
+    linear-gradient(180deg, rgba(204, 190, 166, 0.72), rgba(157, 139, 114, 0.68));
   box-shadow:
     inset 0 1px 0 rgba(255, 244, 223, 0.18),
-    inset 0 -10px 16px rgba(111, 87, 61, 0.08);
+    inset 0 -12px 18px rgba(65, 48, 34, 0.14),
+    0 8px 14px rgba(36, 20, 11, 0.12);
 }
 
 .profile-inspector__stats {

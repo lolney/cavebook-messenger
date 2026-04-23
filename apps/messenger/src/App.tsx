@@ -28,6 +28,28 @@ import './app.css'
 
 type PageId = 'messages' | 'profile' | 'artifacts'
 
+type ChatMessage = {
+  id: string
+  author: 'Ted Olney-Bell' | 'You'
+  side: 'incoming' | 'outgoing'
+  body: string
+}
+
+const initialMessages: ChatMessage[] = [
+  {
+    id: 'question-fish-prompt',
+    author: 'Ted Olney-Bell',
+    side: 'incoming',
+    body: 'What was the prompt you used for the one of me holding the fish?',
+  },
+  {
+    id: 'answer-good-uis',
+    author: 'You',
+    side: 'outgoing',
+    body: "It's very good at generating UIs.",
+  },
+]
+
 const pageTabs = [
   { id: 'messages' as const, label: 'Messages', icon: ScrollText },
   { id: 'profile' as const, label: 'Profile', icon: User },
@@ -100,10 +122,47 @@ function pageFromHash(hash: string): PageId {
   return normalized === 'profile' || normalized === 'artifacts' ? normalized : 'messages'
 }
 
+function loadMessages(): ChatMessage[] {
+  if (typeof window === 'undefined') {
+    return initialMessages
+  }
+
+  const storedMessages = window.localStorage.getItem('cavebook.messages')
+  if (!storedMessages) {
+    return initialMessages
+  }
+
+  try {
+    const parsedMessages: unknown = JSON.parse(storedMessages)
+    if (!Array.isArray(parsedMessages)) {
+      return initialMessages
+    }
+
+    const validMessages = parsedMessages.filter((message): message is ChatMessage => {
+      if (!message || typeof message !== 'object') {
+        return false
+      }
+
+      const candidate = message as Partial<ChatMessage>
+      return (
+        typeof candidate.id === 'string' &&
+        (candidate.author === 'Ted Olney-Bell' || candidate.author === 'You') &&
+        (candidate.side === 'incoming' || candidate.side === 'outgoing') &&
+        typeof candidate.body === 'string'
+      )
+    })
+
+    return validMessages.length ? validMessages : initialMessages
+  } catch {
+    return initialMessages
+  }
+}
+
 export function App() {
   const [page, setPage] = useState<PageId>(() =>
     typeof window === 'undefined' ? 'messages' : pageFromHash(window.location.hash),
   )
+  const [messages, setMessages] = useState<ChatMessage[]>(loadMessages)
 
   useEffect(() => {
     const syncPageFromLocation = () => {
@@ -127,6 +186,22 @@ export function App() {
       window.history.pushState(null, '', nextUrl)
     }
   }, [page])
+
+  useEffect(() => {
+    window.localStorage.setItem('cavebook.messages', JSON.stringify(messages))
+  }, [messages])
+
+  const handleSendMessage = (body: string) => {
+    setMessages((currentMessages) => [
+      ...currentMessages,
+      {
+        id: `local-${Date.now()}-${currentMessages.length}`,
+        author: 'You',
+        side: 'outgoing',
+        body,
+      },
+    ])
+  }
 
   return (
     <div className="cb-page">
@@ -181,7 +256,7 @@ export function App() {
           })}
         </nav>
 
-        {page === 'messages' ? <MessagesPage onNavigate={setPage} /> : null}
+        {page === 'messages' ? <MessagesPage messages={messages} onSendMessage={handleSendMessage} onNavigate={setPage} /> : null}
         {page === 'profile' ? <ProfilePage onNavigate={setPage} /> : null}
         {page === 'artifacts' ? <ArtifactsPage onNavigate={setPage} /> : null}
       </div>
@@ -189,7 +264,22 @@ export function App() {
   )
 }
 
-function MessagesPage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
+function MessagesPage({
+  messages,
+  onNavigate,
+  onSendMessage,
+}: {
+  messages: ChatMessage[]
+  onNavigate: (page: PageId) => void
+  onSendMessage: (body: string) => void
+}) {
+  const [draft, setDraft] = useState('')
+
+  const sendDraft = (body: string) => {
+    onSendMessage(body)
+    setDraft('')
+  }
+
   return (
     <main className="messenger-main">
       <section className="messenger-stage">
@@ -222,22 +312,21 @@ function MessagesPage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
           <div className="messenger-canvas__art messenger-canvas__art--ghost" />
           <div className="messenger-canvas__art messenger-canvas__art--prints" aria-hidden="true" />
 
-          <MessageBubble
-            author="Ted Olney-Bell"
-            ornament={<Hand size={16} />}
-            className="messenger-canvas__bubble messenger-canvas__bubble--question"
-          >
-            <p>What was the prompt you used for the one of me holding the fish?</p>
-          </MessageBubble>
-
-          <MessageBubble
-            author="You"
-            side="outgoing"
-            ornament={<Hand size={16} />}
-            className="messenger-canvas__bubble messenger-canvas__bubble--answer"
-          >
-            <p>It&apos;s very good at generating UIs.</p>
-          </MessageBubble>
+          <div className="messenger-canvas__thread" aria-live="polite">
+            {messages.map((message) => (
+              <MessageBubble
+                key={message.id}
+                author={message.author}
+                side={message.side}
+                ornament={<Hand size={16} />}
+                className={`messenger-canvas__bubble ${
+                  message.id === 'question-fish-prompt' ? 'messenger-canvas__bubble--question' : ''
+                } ${message.id === 'answer-good-uis' ? 'messenger-canvas__bubble--answer' : ''}`}
+              >
+                <p>{message.body}</p>
+              </MessageBubble>
+            ))}
+          </div>
 
           <div className="messenger-canvas__artifact-stack">
             {artifacts.map((artifact) => (
@@ -294,6 +383,9 @@ function MessagesPage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
             secondary={<Hand size={18} />}
             action={<Send size={18} />}
             placeholder="Aa"
+            value={draft}
+            onValueChange={setDraft}
+            onSend={sendDraft}
           />
         </div>
 

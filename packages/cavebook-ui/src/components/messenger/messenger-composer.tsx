@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactNode } from 'react'
+import { useState, type ChangeEvent, type HTMLAttributes, type KeyboardEvent, type ReactNode } from 'react'
 import { Button } from '../ui/button'
 import { TextField } from '../ui/text-field'
 import { cn } from '../../lib/cn'
@@ -11,6 +11,10 @@ export type MessengerComposerProps = HTMLAttributes<HTMLDivElement> & {
   fieldName?: string
   fieldId?: string
   illustrated?: boolean
+  value?: string
+  onValueChange?: (value: string) => void
+  onSend?: (value: string) => void
+  sendDisabled?: boolean
 }
 
 export function MessengerComposer({
@@ -22,8 +26,42 @@ export function MessengerComposer({
   fieldName = 'message',
   fieldId = 'message',
   illustrated = false,
+  value,
+  onValueChange,
+  onSend,
+  sendDisabled = false,
   ...props
 }: MessengerComposerProps) {
+  const [uncontrolledValue, setUncontrolledValue] = useState('')
+  const currentValue = value ?? uncontrolledValue
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextValue = event.target.value
+    if (value === undefined) {
+      setUncontrolledValue(nextValue)
+    }
+    onValueChange?.(nextValue)
+  }
+
+  const handleSend = () => {
+    const nextValue = currentValue.trim()
+    if (!nextValue || sendDisabled) {
+      return
+    }
+
+    onSend?.(nextValue)
+    if (value === undefined) {
+      setUncontrolledValue('')
+    }
+  }
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      handleSend()
+    }
+  }
+
   return (
     <div className={cn('cb-composer', illustrated && 'cb-composer--asset', className)} {...props}>
       <div className="cb-composer__actions">
@@ -53,12 +91,17 @@ export function MessengerComposer({
         name={fieldName}
         aria-label="Message"
         placeholder={placeholder}
+        value={currentValue}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
       />
       <Button
         variant={illustrated ? undefined : 'primary'}
         art={illustrated ? 'send' : undefined}
         size="icon"
         aria-label="Send"
+        disabled={sendDisabled || !currentValue.trim()}
+        onClick={handleSend}
       >
         {action}
       </Button>
