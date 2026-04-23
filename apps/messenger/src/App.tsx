@@ -329,6 +329,12 @@ export function App() {
       const replyIndex =
         nextMessages.filter((message) => message.author === 'Ted Olney-Bell').length % replyFragments.length
 
+      if (preferences.isMuted) {
+        setPendingReply(false)
+        showNotice('Ted is muted locally. Replies are paused until you unmute him.')
+        return nextMessages
+      }
+
       if (replyTimeoutRef.current !== null) {
         window.clearTimeout(replyTimeoutRef.current)
       }
@@ -384,8 +390,17 @@ export function App() {
 
   const handleToggleMute = () => {
     const nextMuted = !preferences.isMuted
+
+    if (nextMuted && replyTimeoutRef.current !== null) {
+      window.clearTimeout(replyTimeoutRef.current)
+      replyTimeoutRef.current = null
+      setPendingReply(false)
+    }
+
     setPreferences((current) => ({ ...current, isMuted: nextMuted }))
-    showNotice(nextMuted ? 'Ted is muted locally.' : 'Ted is unmuted locally.')
+    showNotice(
+      nextMuted ? 'Ted is muted locally. Replies are paused.' : 'Ted is unmuted locally. Replies will resume.',
+    )
   }
 
   const handleToggleFollow = () => {

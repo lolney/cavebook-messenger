@@ -74,7 +74,7 @@ describe('local messenger flow', () => {
     const primaryNav = screen.getByRole('navigation', { name: 'Primary' })
 
     fireEvent.click(screen.getByRole('button', { name: 'Mute' }))
-    expect(screen.getByText('Ted is muted locally.')).toBeInTheDocument()
+    expect(screen.getByText('Ted is muted locally. Replies are paused.')).toBeInTheDocument()
     expect(screen.getByText(/Active now/)).toHaveTextContent('Active now · muted locally')
     expect(screen.getByRole('button', { name: 'Mute' })).toHaveAttribute('aria-pressed', 'true')
 
@@ -90,5 +90,28 @@ describe('local messenger flow', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Browse' }))
     expect(screen.getByText('Browsing Camp Notes.')).toBeInTheDocument()
     expect(screen.queryByText('Profile Marks')).not.toBeInTheDocument()
+  })
+
+  it('suppresses Ted replies while muted', async () => {
+    vi.useFakeTimers()
+
+    render(<App />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mute' }))
+
+    const messageField = screen.getByRole('textbox', { name: 'Message' })
+    fireEvent.change(messageField, { target: { value: 'Testing the quiet camp mode.' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+
+    expect(screen.getByText('Testing the quiet camp mode.')).toBeInTheDocument()
+    expect(screen.getByText('Ted is muted locally. Replies are paused until you unmute him.')).toBeInTheDocument()
+    expect(screen.queryByText('Scratching a reply…')).not.toBeInTheDocument()
+
+    act(() => {
+      vi.advanceTimersByTime(900)
+    })
+
+    expect(screen.queryByText('I asked because the fish portrait is still the strongest one.')).not.toBeInTheDocument()
+    expect(window.localStorage.getItem('cavebook.messages')).toContain('Testing the quiet camp mode.')
   })
 })
