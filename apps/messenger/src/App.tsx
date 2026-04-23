@@ -146,20 +146,20 @@ export function App() {
         <header className="messenger-topbar">
           <div className="messenger-topbar__plaque messenger-topbar__plaque--glyphs messenger-topbar__plaque--left cb-asset cb-asset--plaque-left">
             <span>𐂂</span>
-            <span>✋</span>
+            <span>𐃓</span>
             <span>𐃘</span>
           </div>
-          <div className="messenger-topbar__plaque messenger-topbar__plaque--title cb-asset cb-asset--plaque-title">
-            <p className="cb-eyebrow">Facebook Messenger for Macintosh</p>
-            <h1 className="cb-display">20,000 BCE</h1>
-          </div>
+          <div
+            className="messenger-topbar__plaque messenger-topbar__plaque--title cb-asset cb-asset--plaque-title"
+            aria-label="Facebook Messenger for Macintosh, 20,000 BCE"
+          />
           <div className="messenger-topbar__plaque messenger-topbar__plaque--glyphs messenger-topbar__plaque--right cb-asset cb-asset--plaque-right">
             <span>
               <Sun size={18} />
             </span>
             <span>𐄷</span>
             <span>𐃔</span>
-            <span>✋</span>
+            <span>𐃓</span>
           </div>
         </header>
 
@@ -220,7 +220,7 @@ function MessagesPage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
 
         <div className="messenger-canvas">
           <div className="messenger-canvas__art messenger-canvas__art--ghost" />
-          <div className="messenger-canvas__art messenger-canvas__art--prints">✋</div>
+          <div className="messenger-canvas__art messenger-canvas__art--prints" aria-hidden="true" />
 
           <MessageBubble
             author="Ted Olney-Bell"
