@@ -282,9 +282,18 @@ export function App() {
 
         <header className="messenger-topbar">
           <div className="messenger-topbar__plaque messenger-topbar__plaque--glyphs messenger-topbar__plaque--left cb-asset cb-asset--plaque-left">
-            <span>𐂂</span>
-            <span>𐃓</span>
-            <span>𐃘</span>
+            <span>
+              <User size={18} />
+            </span>
+            <span>
+              <User size={18} />
+            </span>
+            <span>
+              <Hand size={18} />
+            </span>
+            <span>
+              <Mountain size={18} />
+            </span>
           </div>
           <div
             className="messenger-topbar__plaque messenger-topbar__plaque--title cb-asset cb-asset--plaque-title"
@@ -294,9 +303,15 @@ export function App() {
             <span>
               <Sun size={18} />
             </span>
-            <span>𐄷</span>
-            <span>𐃔</span>
-            <span>𐃓</span>
+            <span>
+              <Star size={18} />
+            </span>
+            <span>
+              <Mountain size={18} />
+            </span>
+            <span>
+              <Hand size={18} />
+            </span>
           </div>
         </header>
 
@@ -483,7 +498,7 @@ function MessagesPage({
         <footer className="messenger-statusbar">
           <span className="messenger-statusbar__dot" />
           <span>Connected to Cavebook</span>
-          <span>𐃘</span>
+          <span className="messenger-statusbar__mark" aria-hidden="true" />
         </footer>
       </section>
 
@@ -494,8 +509,8 @@ function MessagesPage({
             <div className="messenger-monolith__portrait cb-asset cb-asset--portrait" aria-hidden="true" />
             <p className="messenger-monolith__handle">@ted.olneybell</p>
             <div className="messenger-monolith__beasts" aria-hidden="true">
-              <span>𐃘</span>
-              <span>𐃘</span>
+              <Mountain size={24} />
+              <Mountain size={24} />
             </div>
             <div className="messenger-monolith__embers" aria-hidden="true">
               <span />
@@ -690,8 +705,8 @@ function ArtifactsPage({ onNavigate }: { onNavigate: (page: PageId) => void }) {
           <div className="messenger-monolith__profile">
             <h2 className="cb-heading">Archive tools</h2>
             <div className="messenger-monolith__beasts" aria-hidden="true">
-              <span>𐃘</span>
-              <span>𐃘</span>
+              <Mountain size={24} />
+              <Mountain size={24} />
             </div>
           </div>
 

@@ -4,4 +4,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: process.env.GITHUB_ACTIONS ? '/cavebook-messenger/' : '/',
   plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.ts',
+  },
 })

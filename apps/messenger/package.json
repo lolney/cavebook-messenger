@@ -7,7 +7,9 @@
     "dev": "vite --port 4174",
     "build": "vite build",
     "lint": "eslint src --ext .ts,.tsx",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@cavebook/ui": "0.1.0",

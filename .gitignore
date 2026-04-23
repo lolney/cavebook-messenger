@@ -8,5 +8,6 @@ messenger-debug*.png
 messenger-iteration*.png
 messenger-skeuo-pass*.png
 storybook-debug.png
+tmp-screens/
 
 .DS_Store
