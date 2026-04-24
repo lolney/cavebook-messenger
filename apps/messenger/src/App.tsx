@@ -3,7 +3,6 @@ import { Flame, Hand, Lock, Mic, MoreHorizontal, Mountain, Phone, ScrollText, Se
 import { Avatar, Badge, Button, InspectorSection, MessageBubble, MessengerComposer, Surface } from '@cavebook/ui'
 import {
   type ArtifactFilter,
-  type ArtifactRecord,
   type CallMode,
   type ChatMessage,
   type InspectorSectionId,
@@ -16,7 +15,6 @@ import {
   selectCurrentThreadMessages,
   selectFilteredCollectionCards,
   selectProfileStats,
-  selectShowcaseArtifacts,
   useCavebookStore,
 } from './cavebook-store'
 import './app.css'
@@ -59,7 +57,6 @@ export function App() {
     toggleMute,
   } = cavebook
   const messages = selectCurrentThreadMessages(cavebook)
-  const showcaseArtifacts = selectShowcaseArtifacts(cavebook)
   const collectionCards = selectFilteredCollectionCards(cavebook)
   const profileStats = selectProfileStats(cavebook)
 
@@ -190,7 +187,6 @@ export function App() {
 
         {page === 'messages' ? (
           <MessagesPage
-            artifacts={showcaseArtifacts}
             callDurationSeconds={callDurationSeconds}
             callMode={callMode}
             isMuted={isMuted}
@@ -231,7 +227,6 @@ export function App() {
 }
 
 function MessagesPage({
-  artifacts,
   callDurationSeconds,
   callMode,
   isMuted,
@@ -245,7 +240,6 @@ function MessagesPage({
   onToggleInspectorSection,
   onToggleMute,
 }: {
-  artifacts: ArtifactRecord[]
   callDurationSeconds: number
   callMode: CallMode | null
   isMuted: boolean
@@ -377,53 +371,6 @@ function MessagesPage({
               >
                 <p>{message.body}</p>
               </MessageBubble>
-            ))}
-          </div>
-
-          <div className="messenger-canvas__artifact-stack">
-            {artifacts.map((artifact) => (
-              <Surface key={artifact.id} art={artifact.art} className={artifact.className}>
-                <div className="artifact-card__pin artifact-card__pin--left" aria-hidden="true" />
-                <div className="artifact-card__pin artifact-card__pin--right" aria-hidden="true" />
-                <p className="artifact-card__title">{artifact.title}</p>
-                <p className="artifact-card__body">{artifact.body}</p>
-                <div className="artifact-card__mock" aria-hidden="true">
-                  {artifact.className.includes('wide') ? (
-                    <>
-                      <div className="artifact-card__ui artifact-card__ui--sidebar">
-                        <span>Home</span>
-                        <span>Explore</span>
-                        <span>Messages</span>
-                        <span>Grok</span>
-                        <span>Mammoths</span>
-                        <span>More</span>
-                      </div>
-                      <div className="artifact-card__ui artifact-card__ui--feed">
-                        <div>What&apos;s happening?</div>
-                        <div>Papyrus thread with ochre highlights</div>
-                        <div>Klindoropodos posted a new mammoth sketch</div>
-                        <div>Trud Aardoter replied by sacred fire</div>
-                      </div>
-                      <div className="artifact-card__ui artifact-card__ui--rail">
-                        <span>Search</span>
-                        <span>Trends</span>
-                        <span>Transport</span>
-                        <span>Tracks</span>
-                        <span>Replies</span>
-                      </div>
-                    </>
-                  ) : null}
-
-                  {artifact.className.includes('workbench') ? (
-                    <>
-                      <div className="artifact-card__desk artifact-card__desk--nav" />
-                      <div className="artifact-card__desk artifact-card__desk--editor" />
-                      <div className="artifact-card__desk artifact-card__desk--files" />
-                      <div className="artifact-card__desk artifact-card__desk--console" />
-                    </>
-                  ) : null}
-                </div>
-              </Surface>
             ))}
           </div>
         </div>
