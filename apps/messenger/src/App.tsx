@@ -1,70 +1,25 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
+import { Flame, Hand, Lock, Mic, MoreHorizontal, Mountain, Phone, ScrollText, Search, Send, Star, User, Video } from 'lucide-react'
+import { Avatar, Badge, Button, InspectorSection, MessageBubble, MessengerComposer, Surface } from '@cavebook/ui'
 import {
-  Flame,
-  Hand,
-  Lock,
-  Mic,
-  MoreHorizontal,
-  Phone,
-  Search,
-  Send,
-  User,
-  Video,
-  ScrollText,
-  Mountain,
-  Star,
-} from 'lucide-react'
+  type ArtifactFilter,
+  type ArtifactRecord,
+  type CallMode,
+  type ChatMessage,
+  type InspectorSectionId,
+  type PageId,
+  inspectorDetails,
+  profileMemories,
+  profilePosts,
+} from './cavebook-model'
 import {
-  Avatar,
-  Badge,
-  Button,
-  InspectorSection,
-  MessageBubble,
-  MessengerComposer,
-  Surface,
-} from '@cavebook/ui'
+  selectCurrentThreadMessages,
+  selectFilteredCollectionCards,
+  selectProfileStats,
+  selectShowcaseArtifacts,
+  useCavebookStore,
+} from './cavebook-store'
 import './app.css'
-
-type PageId = 'messages' | 'profile' | 'artifacts'
-type InspectorSectionId = 'chatInfo' | 'customizeChat' | 'mediaFiles' | 'privacySupport'
-type NoticeTone = 'neutral' | 'active'
-
-type ChatMessage = {
-  id: string
-  author: 'Ted Olney-Bell' | 'You'
-  side: 'incoming' | 'outgoing'
-  body: string
-}
-
-type AppNotice = {
-  text: string
-  tone: NoticeTone
-}
-
-const MESSAGE_STORAGE_KEY = 'cavebook.messages'
-const PREFERENCES_STORAGE_KEY = 'cavebook.preferences'
-
-const initialMessages: ChatMessage[] = [
-  {
-    id: 'question-fish-prompt',
-    author: 'Ted Olney-Bell',
-    side: 'incoming',
-    body: 'What was the prompt you used for the one of me holding the fish?',
-  },
-  {
-    id: 'answer-good-uis',
-    author: 'You',
-    side: 'outgoing',
-    body: "It's very good at generating UIs.",
-  },
-]
-
-const replyFragments = [
-  'I asked because the fish portrait is still the strongest one.',
-  'The cave-painting atmosphere is working, but the sidebar stone still needs more depth.',
-  'Try keeping the tablet stack tighter so it feels pinned instead of pasted on.',
-  'That tracks. The hand-carved framing is doing more of the work now.',
-] as const
 
 const pageTabs = [
   { id: 'messages' as const, label: 'Messages', icon: ScrollText },
@@ -79,200 +34,52 @@ const inspectorSections = [
   { id: 'privacySupport' as const, label: 'Privacy & support', art: 'privacySupport' as const },
 ] as const
 
-const artifacts = [
-  {
-    title: "It's very good at generating UIs",
-    body: 'Pinned soot tablet with a carved timeline, hand-fed replies, and ritual search rail.',
-    art: 'sootTablet' as const,
-    className: 'artifact-card artifact-card--wide',
-  },
-  {
-    title: 'Here was the chat',
-    body: 'https://chatgpt.com/share/69e86442-93b8-83e8-9cb8-22ff2254e76d',
-    art: 'linkTablet' as const,
-    className: 'artifact-card artifact-card--link',
-  },
-  {
-    title: "Here's Codex in 1995",
-    body: 'Stone workbench for projects, folders, patch previews, and camp-console output.',
-    art: 'workbenchTablet' as const,
-    className: 'artifact-card artifact-card--workbench',
-  },
-] as const
-
-const memoryCards = [
-  {
-    title: 'Hunt sketch',
-    body: 'Three mammoths, one canoe, and a suspiciously modern search ranking algorithm.',
-  },
-  {
-    title: 'Pinned note',
-    body: 'Still insists the fish portrait was for “research” and not profile optimization.',
-  },
-  {
-    title: 'Guild role',
-    body: 'Lead cave-interface wrangler for Sacred Fire Systems and elder of rough edges.',
-  },
-] as const
-
-const collectionCards = [
-  {
-    title: 'Camp Notes',
-    kicker: '22 tablets',
-    body: 'Drafted interfaces, link tablets, and smoke-dark conversation captures.',
-  },
-  {
-    title: 'Profile Marks',
-    kicker: '7 carvings',
-    body: 'Portrait studies, tribe badges, and messenger handle experiments.',
-  },
-  {
-    title: 'Ritual Logs',
-    kicker: '14 embers',
-    body: 'Build output, patch rituals, and benchmark scratches kept beside the fire.',
-  },
-] as const
-
-const inspectorDetails: Record<InspectorSectionId, string> = {
-  chatInfo: 'Local-only thread with Ted. Messages stay in this browser and can be reset from the more button.',
-  customizeChat:
-    'The visual shell, reply loop, and tablet stack are active here. This build has no remote theme sync.',
-  mediaFiles: 'Current shelf includes the soot feed tablet, the shared-chat tablet, and the Codex workbench tablet.',
-  privacySupport: 'No server sync, no remote account state, and no network-backed actions. This app runs entirely locally.',
-}
-
-function defaultPreferences() {
-  return {
-    isMuted: false,
-    isFollowing: false,
-    callMode: null as 'voice' | 'video' | null,
-    openInspectorSection: null as InspectorSectionId | null,
-    artifactFilter: 'all' as 'all' | 'notes' | 'marks' | 'logs',
-  }
-}
-
-function pageFromHash(hash: string): PageId {
-  const normalized = hash.replace(/^#/, '')
-  return normalized === 'profile' || normalized === 'artifacts' ? normalized : 'messages'
-}
-
-function loadMessages(): ChatMessage[] {
-  if (typeof window === 'undefined') {
-    return initialMessages
-  }
-
-  try {
-    const storedMessages = window.localStorage.getItem(MESSAGE_STORAGE_KEY)
-    if (!storedMessages) {
-      return initialMessages
-    }
-
-    const parsedMessages: unknown = JSON.parse(storedMessages)
-    if (!Array.isArray(parsedMessages)) {
-      return initialMessages
-    }
-
-    const validMessages = parsedMessages.filter((message): message is ChatMessage => {
-      if (!message || typeof message !== 'object') {
-        return false
-      }
-
-      const candidate = message as Partial<ChatMessage>
-      return (
-        typeof candidate.id === 'string' &&
-        (candidate.author === 'Ted Olney-Bell' || candidate.author === 'You') &&
-        (candidate.side === 'incoming' || candidate.side === 'outgoing') &&
-        typeof candidate.body === 'string'
-      )
-    })
-
-    return validMessages.length ? validMessages : initialMessages
-  } catch {
-    return initialMessages
-  }
-}
-
-function persistMessages(messages: ChatMessage[]) {
-  try {
-    window.localStorage.setItem(MESSAGE_STORAGE_KEY, JSON.stringify(messages))
-  } catch {
-    // Storage can be unavailable in restricted browser contexts; the chat still works in memory.
-  }
-}
-
-function loadPreferences() {
-  if (typeof window === 'undefined') {
-    return defaultPreferences()
-  }
-
-  try {
-    const storedPreferences = window.localStorage.getItem(PREFERENCES_STORAGE_KEY)
-    if (!storedPreferences) {
-      return defaultPreferences()
-    }
-
-    const parsedPreferences: unknown = JSON.parse(storedPreferences)
-    if (!parsedPreferences || typeof parsedPreferences !== 'object') {
-      return defaultPreferences()
-    }
-
-    const candidate = parsedPreferences as Partial<ReturnType<typeof defaultPreferences>>
-    return {
-      isMuted: candidate.isMuted === true,
-      isFollowing: candidate.isFollowing === true,
-      callMode: candidate.callMode === 'voice' || candidate.callMode === 'video' ? candidate.callMode : null,
-      openInspectorSection:
-        candidate.openInspectorSection === 'chatInfo' ||
-        candidate.openInspectorSection === 'customizeChat' ||
-        candidate.openInspectorSection === 'mediaFiles' ||
-        candidate.openInspectorSection === 'privacySupport'
-          ? candidate.openInspectorSection
-          : null,
-      artifactFilter:
-        candidate.artifactFilter === 'notes' ||
-        candidate.artifactFilter === 'marks' ||
-        candidate.artifactFilter === 'logs'
-          ? candidate.artifactFilter
-          : 'all',
-    }
-  } catch {
-    return defaultPreferences()
-  }
-}
-
-function persistPreferences(preferences: ReturnType<typeof defaultPreferences>) {
-  try {
-    window.localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(preferences))
-  } catch {
-    // Preferences stay in memory when storage is unavailable.
-  }
-}
-
 export function App() {
-  const [preferences, setPreferences] = useState(loadPreferences)
-  const [page, setPage] = useState<PageId>(() =>
-    typeof window === 'undefined' ? 'messages' : pageFromHash(window.location.hash),
-  )
-  const [messages, setMessages] = useState<ChatMessage[]>(loadMessages)
-  const [pendingReply, setPendingReply] = useState(false)
-  const [notice, setNotice] = useState<AppNotice | null>(null)
-  const [callDurationSeconds, setCallDurationSeconds] = useState(0)
-  const replyTimeoutRef = useRef<number | null>(null)
-  const noticeTimeoutRef = useRef<number | null>(null)
-  const callTickRef = useRef<number | null>(null)
+  const [callNow, setCallNow] = useState(() => Date.now())
+  const cavebook = useCavebookStore()
+  const {
+    artifactFilter,
+    callMode,
+    callStartedAt,
+    clearNotice,
+    cycleArtifactFilter,
+    flushQueuedReply,
+    hydratePageFromHash,
+    isFollowing,
+    isMuted,
+    navigate,
+    notice,
+    openInspectorSection,
+    page,
+    pendingReply,
+    resetCurrentThread,
+    toggleCall,
+    toggleFollow,
+    toggleInspectorSection,
+    toggleMute,
+  } = cavebook
+  const messages = selectCurrentThreadMessages(cavebook)
+  const showcaseArtifacts = selectShowcaseArtifacts(cavebook)
+  const collectionCards = selectFilteredCollectionCards(cavebook)
+  const profileStats = selectProfileStats(cavebook)
+
+  const flushReplyEvent = useEffectEvent(() => {
+    flushQueuedReply()
+  })
 
   useEffect(() => {
     const syncPageFromLocation = () => {
-      setPage(pageFromHash(window.location.hash))
+      hydratePageFromHash(window.location.hash)
     }
 
+    syncPageFromLocation()
     window.addEventListener('hashchange', syncPageFromLocation)
     window.addEventListener('popstate', syncPageFromLocation)
     return () => {
       window.removeEventListener('hashchange', syncPageFromLocation)
       window.removeEventListener('popstate', syncPageFromLocation)
     }
-  }, [])
+  }, [hydratePageFromHash])
 
   useEffect(() => {
     const nextHash = page === 'messages' ? '' : `#${page}`
@@ -285,187 +92,48 @@ export function App() {
   }, [page])
 
   useEffect(() => {
-    persistMessages(messages)
-  }, [messages])
-
-  useEffect(() => {
-    persistPreferences(preferences)
-  }, [preferences])
-
-  useEffect(() => {
-    if (callTickRef.current !== null) {
-      window.clearInterval(callTickRef.current)
-      callTickRef.current = null
-    }
-
-    if (!preferences.callMode) {
+    if (!notice) {
       return
     }
 
-    callTickRef.current = window.setInterval(() => {
-      setCallDurationSeconds((current) => current + 1)
+    const timeoutId = window.setTimeout(() => {
+      clearNotice()
+    }, 2400)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [clearNotice, notice])
+
+  useEffect(() => {
+    if (!pendingReply) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      flushReplyEvent()
+    }, 900)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [pendingReply])
+
+  useEffect(() => {
+    if (!callStartedAt) {
+      return
+    }
+
+    const intervalId = window.setInterval(() => {
+      setCallNow(Date.now())
     }, 1000)
 
     return () => {
-      if (callTickRef.current !== null) {
-        window.clearInterval(callTickRef.current)
-        callTickRef.current = null
-      }
+      window.clearInterval(intervalId)
     }
-  }, [preferences.callMode])
+  }, [callStartedAt])
 
-  useEffect(() => {
-    return () => {
-      if (replyTimeoutRef.current !== null) {
-        window.clearTimeout(replyTimeoutRef.current)
-      }
-      if (noticeTimeoutRef.current !== null) {
-        window.clearTimeout(noticeTimeoutRef.current)
-      }
-      if (callTickRef.current !== null) {
-        window.clearInterval(callTickRef.current)
-      }
-    }
-  }, [])
-
-  const showNotice = (text: string, tone: NoticeTone = 'neutral') => {
-    setNotice({ text, tone })
-
-    if (noticeTimeoutRef.current !== null) {
-      window.clearTimeout(noticeTimeoutRef.current)
-    }
-
-    noticeTimeoutRef.current = window.setTimeout(() => {
-      setNotice(null)
-      noticeTimeoutRef.current = null
-    }, 2400)
-  }
-
-  const handleSendMessage = (body: string) => {
-    setMessages((currentMessages) => {
-      const nextMessages = [
-        ...currentMessages,
-        {
-          id: `local-${Date.now()}-${currentMessages.length}`,
-          author: 'You',
-          side: 'outgoing',
-          body,
-        } satisfies ChatMessage,
-      ]
-
-      const replyIndex =
-        nextMessages.filter((message) => message.author === 'Ted Olney-Bell').length % replyFragments.length
-
-      if (preferences.isMuted) {
-        setPendingReply(false)
-        showNotice('Ted is muted locally. Replies are paused until you unmute him.')
-        return nextMessages
-      }
-
-      if (replyTimeoutRef.current !== null) {
-        window.clearTimeout(replyTimeoutRef.current)
-      }
-
-      setPendingReply(true)
-      replyTimeoutRef.current = window.setTimeout(() => {
-        setMessages((latestMessages) => [
-          ...latestMessages,
-          {
-            id: `ted-${Date.now()}-${latestMessages.length}`,
-            author: 'Ted Olney-Bell',
-            side: 'incoming',
-            body: replyFragments[replyIndex],
-          },
-        ])
-        setPendingReply(false)
-        replyTimeoutRef.current = null
-      }, 900)
-
-      return nextMessages
-    })
-  }
-
-  const handleResetMessages = () => {
-    if (replyTimeoutRef.current !== null) {
-      window.clearTimeout(replyTimeoutRef.current)
-      replyTimeoutRef.current = null
-    }
-    setPendingReply(false)
-    setMessages(initialMessages)
-    showNotice('Thread reset to the seeded camp exchange.')
-  }
-
-  const handleStartCall = (mode: 'voice' | 'video') => {
-    const isClosing = preferences.callMode === mode
-
-    setCallDurationSeconds(0)
-
-    setPreferences((current) => ({
-      ...current,
-      callMode: isClosing ? null : mode,
-    }))
-
-    showNotice(
-      isClosing
-        ? mode === 'voice'
-          ? 'Voice ritual ended.'
-          : 'Vision fire ended.'
-        : mode === 'voice'
-          ? 'Voice ritual started locally. No remote call is placed.'
-          : 'Vision fire started locally. No remote video session is placed.',
-      'active',
-    )
-  }
-
-  const handleToggleMute = () => {
-    const nextMuted = !preferences.isMuted
-
-    if (nextMuted && replyTimeoutRef.current !== null) {
-      window.clearTimeout(replyTimeoutRef.current)
-      replyTimeoutRef.current = null
-      setPendingReply(false)
-    }
-
-    setPreferences((current) => ({ ...current, isMuted: nextMuted }))
-    showNotice(
-      nextMuted ? 'Ted is muted locally. Replies are paused.' : 'Ted is unmuted locally. Replies will resume.',
-    )
-  }
-
-  const handleToggleFollow = () => {
-    const nextFollowing = !preferences.isFollowing
-    setPreferences((current) => ({ ...current, isFollowing: nextFollowing }))
-    showNotice(nextFollowing ? 'You are now following Ted.' : 'You stopped following Ted.')
-  }
-
-  const handleToggleInspectorSection = (sectionId: InspectorSectionId) => {
-    setPreferences((current) => ({
-      ...current,
-      openInspectorSection: current.openInspectorSection === sectionId ? null : sectionId,
-    }))
-  }
-
-  const handleBrowseArtifacts = () => {
-    const nextFilter =
-      preferences.artifactFilter === 'all'
-        ? 'notes'
-        : preferences.artifactFilter === 'notes'
-          ? 'marks'
-          : preferences.artifactFilter === 'marks'
-            ? 'logs'
-            : 'all'
-
-    setPreferences((current) => ({
-      ...current,
-      artifactFilter: nextFilter,
-    }))
-
-    showNotice(
-      nextFilter === 'all'
-        ? 'Showing the full archive shelf.'
-        : `Browsing ${nextFilter === 'notes' ? 'Camp Notes' : nextFilter === 'marks' ? 'Profile Marks' : 'Ritual Logs'}.`,
-    )
-  }
+  const callDurationSeconds = callStartedAt ? Math.max(0, Math.floor((callNow - callStartedAt) / 1000)) : 0
 
   return (
     <div className="cb-page">
@@ -510,7 +178,7 @@ export function App() {
                 key={tab.id}
                 className={`messenger-nav__tab ${page === tab.id ? 'is-active' : ''}`}
                 type="button"
-                onClick={() => setPage(tab.id)}
+                onClick={() => navigate(tab.id)}
                 aria-current={page === tab.id ? 'page' : undefined}
               >
                 <Icon size={18} />
@@ -522,32 +190,39 @@ export function App() {
 
         {page === 'messages' ? (
           <MessagesPage
+            artifacts={showcaseArtifacts}
             callDurationSeconds={callDurationSeconds}
-            callMode={preferences.callMode}
-            isMuted={preferences.isMuted}
+            callMode={callMode}
+            isMuted={isMuted}
             messages={messages}
-            openInspectorSection={preferences.openInspectorSection}
+            openInspectorSection={openInspectorSection}
             pendingReply={pendingReply}
-            onSendMessage={handleSendMessage}
-            onResetMessages={handleResetMessages}
-            onNavigate={setPage}
-            onStartCall={handleStartCall}
-            onToggleInspectorSection={handleToggleInspectorSection}
-            onToggleMute={handleToggleMute}
+            onNavigate={navigate}
+            onResetMessages={resetCurrentThread}
+            onSendMessage={(body) => useCavebookStore.getState().sendMessage(body)}
+            onStartCall={toggleCall}
+            onToggleInspectorSection={toggleInspectorSection}
+            onToggleMute={toggleMute}
           />
         ) : null}
         {page === 'profile' ? (
           <ProfilePage
-            isFollowing={preferences.isFollowing}
-            onNavigate={setPage}
-            onToggleFollow={handleToggleFollow}
+            artifactCount={profileStats.artifacts}
+            guildCount={profileStats.guilds}
+            isFollowing={isFollowing}
+            memories={profileMemories}
+            onNavigate={navigate}
+            onToggleFollow={toggleFollow}
+            posts={profilePosts}
+            friendCount={profileStats.friends}
           />
         ) : null}
         {page === 'artifacts' ? (
           <ArtifactsPage
-            artifactFilter={preferences.artifactFilter}
-            onBrowseArtifacts={handleBrowseArtifacts}
-            onNavigate={setPage}
+            artifactFilter={artifactFilter}
+            collectionCards={collectionCards}
+            onBrowseArtifacts={cycleArtifactFilter}
+            onNavigate={navigate}
           />
         ) : null}
       </div>
@@ -556,6 +231,7 @@ export function App() {
 }
 
 function MessagesPage({
+  artifacts,
   callDurationSeconds,
   callMode,
   isMuted,
@@ -569,8 +245,9 @@ function MessagesPage({
   onToggleInspectorSection,
   onToggleMute,
 }: {
+  artifacts: ArtifactRecord[]
   callDurationSeconds: number
-  callMode: 'voice' | 'video' | null
+  callMode: CallMode | null
   isMuted: boolean
   messages: ChatMessage[]
   openInspectorSection: InspectorSectionId | null
@@ -578,7 +255,7 @@ function MessagesPage({
   onNavigate: (page: PageId) => void
   onResetMessages: () => void
   onSendMessage: (body: string) => void
-  onStartCall: (mode: 'voice' | 'video') => void
+  onStartCall: (mode: CallMode) => void
   onToggleInspectorSection: (sectionId: InspectorSectionId) => void
   onToggleMute: () => void
 }) {
@@ -705,7 +382,7 @@ function MessagesPage({
 
           <div className="messenger-canvas__artifact-stack">
             {artifacts.map((artifact) => (
-              <Surface key={artifact.title} art={artifact.art} className={artifact.className}>
+              <Surface key={artifact.id} art={artifact.art} className={artifact.className}>
                 <div className="artifact-card__pin artifact-card__pin--left" aria-hidden="true" />
                 <div className="artifact-card__pin artifact-card__pin--right" aria-hidden="true" />
                 <p className="artifact-card__title">{artifact.title}</p>
@@ -793,12 +470,7 @@ function MessagesPage({
           </Badge>
 
           <div className="messenger-monolith__actions">
-            <Button
-              variant="ghost"
-              className="messenger-monolith__action"
-              aria-label="Profile"
-              onClick={() => onNavigate('profile')}
-            >
+            <Button variant="ghost" className="messenger-monolith__action" aria-label="Profile" onClick={() => onNavigate('profile')}>
               <Hand size={20} />
               <span>Profile</span>
             </Button>
@@ -812,12 +484,7 @@ function MessagesPage({
               <Flame size={20} />
               <span>{isMuted ? 'Unmute' : 'Mute'}</span>
             </Button>
-            <Button
-              variant="ghost"
-              className="messenger-monolith__action"
-              aria-label="Artifacts"
-              onClick={() => onNavigate('artifacts')}
-            >
+            <Button variant="ghost" className="messenger-monolith__action" aria-label="Artifacts" onClick={() => onNavigate('artifacts')}>
               <Mountain size={20} />
               <span>Archive</span>
             </Button>
@@ -848,13 +515,23 @@ function MessagesPage({
 }
 
 function ProfilePage({
+  artifactCount,
+  friendCount,
+  guildCount,
   isFollowing,
+  memories,
   onNavigate,
   onToggleFollow,
+  posts,
 }: {
+  artifactCount: number
+  friendCount: number
+  guildCount: number
   isFollowing: boolean
+  memories: typeof profileMemories
   onNavigate: (page: PageId) => void
   onToggleFollow: () => void
+  posts: typeof profilePosts
 }) {
   return (
     <main className="messenger-main">
@@ -869,15 +546,19 @@ function ProfilePage({
               Interface naturalist, mammoth-feed enthusiast, and keeper of rough-hewn product sense.
             </p>
             <div className="profile-stage__badges">
-              <Badge variant="stone" icon={<Flame size={14} />}>Sacred Fire Guild</Badge>
-              <Badge variant="stone" icon={<Star size={14} />}>Verified by ochre</Badge>
+              <Badge variant="stone" icon={<Flame size={14} />}>
+                Sacred Fire Guild
+              </Badge>
+              <Badge variant="stone" icon={<Star size={14} />}>
+                Verified by ochre
+              </Badge>
             </div>
           </div>
         </div>
 
         <div className="profile-stage__grid">
-          {memoryCards.map((card) => (
-            <Surface key={card.title} variant="parchment" className="profile-memory-card">
+          {memories.map((card) => (
+            <Surface key={card.id} variant="parchment" className="profile-memory-card">
               <p className="profile-memory-card__title">{card.title}</p>
               <p className="cb-copy">{card.body}</p>
             </Surface>
@@ -893,14 +574,12 @@ function ProfilePage({
             </Button>
           </div>
           <div className="profile-stage__posts">
-            <article className="profile-post">
-              <p className="profile-post__title">Shared a fish portrait study</p>
-              <p className="cb-copy">“Prompt discipline remains the highest form of cave governance.”</p>
-            </article>
-            <article className="profile-post">
-              <p className="profile-post__title">Pinned a cave UI fragment</p>
-              <p className="cb-copy">Tabbed stone interfaces now standardized across camp tooling.</p>
-            </article>
+            {posts.map((post) => (
+              <article key={post.id} className="profile-post">
+                <p className="profile-post__title">{post.title}</p>
+                <p className="cb-copy">{post.body}</p>
+              </article>
+            ))}
           </div>
         </Surface>
       </section>
@@ -915,15 +594,15 @@ function ProfilePage({
 
           <div className="profile-inspector__stats">
             <div className="profile-stat">
-              <span className="profile-stat__value">{isFollowing ? '93' : '92'}</span>
+              <span className="profile-stat__value">{friendCount}</span>
               <span className="profile-stat__label">Friends</span>
             </div>
             <div className="profile-stat">
-              <span className="profile-stat__value">14</span>
+              <span className="profile-stat__value">{artifactCount}</span>
               <span className="profile-stat__label">Artifacts</span>
             </div>
             <div className="profile-stat">
-              <span className="profile-stat__value">7</span>
+              <span className="profile-stat__value">{guildCount}</span>
               <span className="profile-stat__label">Guilds</span>
             </div>
           </div>
@@ -933,12 +612,7 @@ function ProfilePage({
               <ScrollText size={20} />
               <span>Messages</span>
             </Button>
-            <Button
-              variant="ghost"
-              className="messenger-monolith__action"
-              aria-pressed={isFollowing}
-              onClick={onToggleFollow}
-            >
+            <Button variant="ghost" className="messenger-monolith__action" aria-pressed={isFollowing} onClick={onToggleFollow}>
               <User size={20} />
               <span>{isFollowing ? 'Following' : 'Follow'}</span>
             </Button>
@@ -955,24 +629,15 @@ function ProfilePage({
 
 function ArtifactsPage({
   artifactFilter,
+  collectionCards,
   onBrowseArtifacts,
   onNavigate,
 }: {
-  artifactFilter: 'all' | 'notes' | 'marks' | 'logs'
+  artifactFilter: ArtifactFilter
+  collectionCards: Array<{ title: string; kicker: string; body: string }>
   onBrowseArtifacts: () => void
   onNavigate: (page: PageId) => void
 }) {
-  const filteredCards =
-    artifactFilter === 'all'
-      ? collectionCards
-      : collectionCards.filter((card) =>
-          artifactFilter === 'notes'
-            ? card.title === 'Camp Notes'
-            : artifactFilter === 'marks'
-              ? card.title === 'Profile Marks'
-              : card.title === 'Ritual Logs',
-        )
-
   return (
     <main className="messenger-main">
       <section className="messenger-stage artifacts-stage">
@@ -988,7 +653,7 @@ function ArtifactsPage({
         </div>
 
         <div className="artifacts-stage__grid">
-          {filteredCards.map((card) => (
+          {collectionCards.map((card) => (
             <Surface key={card.title} variant="parchment" className="artifacts-card">
               <p className="artifacts-card__kicker">{card.kicker}</p>
               <p className="artifacts-card__title">{card.title}</p>

@@ -1,10 +1,17 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { act } from 'react'
-import { afterEach, vi } from 'vitest'
+import { afterEach, beforeEach, vi } from 'vitest'
 import { App } from './App'
+import { resetCavebookStore } from './cavebook-store'
 
 afterEach(() => {
   vi.useRealTimers()
+})
+
+beforeEach(() => {
+  window.localStorage.clear()
+  window.history.replaceState(null, '', '/')
+  resetCavebookStore()
 })
 
 describe('local messenger flow', () => {
@@ -20,9 +27,7 @@ describe('local messenger flow', () => {
     expect(screen.getByText('Bring the fish portrait back into the thread.')).toBeInTheDocument()
     expect(screen.getByText('Scratching a reply…')).toBeInTheDocument()
 
-    expect(window.localStorage.getItem('cavebook.messages')).toContain(
-      'Bring the fish portrait back into the thread.',
-    )
+    expect(window.localStorage.getItem('cavebook.store')).toContain('Bring the fish portrait back into the thread.')
 
     act(() => {
       vi.advanceTimersByTime(900)
@@ -57,6 +62,7 @@ describe('local messenger flow', () => {
     ]
 
     window.localStorage.setItem('cavebook.messages', JSON.stringify(storedMessages))
+    resetCavebookStore()
 
     render(<App />)
 
@@ -112,7 +118,7 @@ describe('local messenger flow', () => {
     })
 
     expect(screen.queryByText('I asked because the fish portrait is still the strongest one.')).not.toBeInTheDocument()
-    expect(window.localStorage.getItem('cavebook.messages')).toContain('Testing the quiet camp mode.')
+    expect(window.localStorage.getItem('cavebook.store')).toContain('Testing the quiet camp mode.')
   })
 
   it('opens and closes a local call tray from the toolbar', async () => {
@@ -134,5 +140,23 @@ describe('local messenger flow', () => {
     fireEvent.click(screen.getByRole('button', { name: 'End ritual' }))
     expect(screen.queryByText('Voice ritual open')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Call' })).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('archives a ritual log when a local call ends', async () => {
+    vi.useFakeTimers()
+
+    render(<App />)
+    const primaryNav = screen.getByRole('navigation', { name: 'Primary' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Call' }))
+
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'End ritual' }))
+    fireEvent.click(within(primaryNav).getByRole('button', { name: 'Artifacts' }))
+
+    expect(screen.getByText('2 embers')).toBeInTheDocument()
   })
 })
