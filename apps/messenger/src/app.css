@@ -468,17 +468,15 @@
   width: 68px;
   min-width: 68px;
   min-height: 68px;
-  border: 2px solid rgba(106, 74, 48, 0.66);
-  border-radius: 17px 19px 15px 18px;
-  clip-path: polygon(7% 11%, 17% 4%, 84% 5%, 96% 17%, 95% 84%, 84% 96%, 13% 94%, 5% 82%);
-  background:
-    radial-gradient(circle at 30% 18%, rgba(255, 240, 208, 0.18), transparent 30%),
-    linear-gradient(180deg, rgba(223, 190, 147, 0.92), rgba(186, 144, 97, 0.94));
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  background-position: center;
+  background-size: 116% 116%;
+  clip-path: inset(2px round 16px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 237, 208, 0.28),
-    inset 0 -8px 12px rgba(110, 73, 42, 0.18),
-    0 6px 10px rgba(44, 25, 14, 0.16),
-    0 0 0 1px rgba(77, 49, 30, 0.08);
+    0 8px 13px rgba(44, 25, 14, 0.2),
+    0 1px 0 rgba(255, 236, 204, 0.18);
 }
 
 .messenger-toolbar-button svg {
@@ -1051,16 +1049,15 @@
 .messenger-composer-wrap__composer {
   min-height: 86px;
   padding: 11px 14px;
-  border: 2px solid rgba(113, 81, 53, 0.58);
-  border-radius: 24px 28px 23px 26px;
-  background:
-    radial-gradient(circle at 50% 18%, rgba(255, 247, 224, 0.2), transparent 34%),
-    radial-gradient(circle at 12% 84%, rgba(108, 66, 34, 0.12), transparent 26%),
-    linear-gradient(180deg, rgba(219, 189, 145, 0.88), rgba(181, 132, 83, 0.94));
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  background-position: center;
+  background-size: 101% 118%;
+  clip-path: inset(0 round 22px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 240, 212, 0.2),
-    inset 0 -14px 18px rgba(89, 56, 31, 0.18),
-    0 12px 22px rgba(37, 20, 11, 0.14);
+    0 12px 22px rgba(37, 20, 11, 0.14),
+    0 2px 0 rgba(80, 49, 27, 0.14);
 }
 
 .messenger-composer-wrap__composer .cb-text-field {
@@ -1080,16 +1077,15 @@
   width: 56px;
   min-width: 56px;
   min-height: 56px;
-  border: 2px solid rgba(107, 74, 47, 0.66);
-  border-radius: 16px 19px 14px 18px;
-  clip-path: polygon(8% 12%, 20% 4%, 84% 5%, 96% 18%, 94% 84%, 84% 96%, 14% 94%, 4% 82%);
-  background:
-    radial-gradient(circle at 30% 18%, rgba(255, 240, 208, 0.18), transparent 30%),
-    linear-gradient(180deg, rgba(224, 191, 149, 0.92), rgba(184, 142, 96, 0.94));
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  background-position: center;
+  background-size: 116% 116%;
+  clip-path: inset(2px round 15px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 237, 208, 0.28),
-    inset 0 -8px 12px rgba(110, 73, 42, 0.18),
-    0 6px 10px rgba(44, 25, 14, 0.12);
+    0 7px 11px rgba(44, 25, 14, 0.14),
+    0 1px 0 rgba(255, 236, 204, 0.16);
 }
 
 .messenger-composer-wrap__composer .cb-composer__actions .cb-button svg,

@@ -294,7 +294,7 @@ function MessagesPage({
 
           <div className="messenger-contact-strip__actions">
             <Button
-              variant="utility"
+              art="phone"
               size="icon"
               className="messenger-toolbar-button"
               aria-label="Call"
@@ -304,7 +304,7 @@ function MessagesPage({
               <Phone size={20} />
             </Button>
             <Button
-              variant="utility"
+              art="video"
               size="icon"
               className="messenger-toolbar-button"
               aria-label="Video call"
@@ -314,7 +314,7 @@ function MessagesPage({
               <Video size={20} />
             </Button>
             <Button
-              variant="utility"
+              art="more"
               size="icon"
               className="messenger-toolbar-button"
               aria-label="Reset chat"
@@ -381,6 +381,7 @@ function MessagesPage({
             leading={<Mic size={18} />}
             secondary={<Hand size={18} />}
             action={<Send size={18} />}
+            illustrated
             placeholder="Aa"
             value={draft}
             onValueChange={setDraft}
