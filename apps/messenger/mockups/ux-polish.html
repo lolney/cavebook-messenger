@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cavebook UX Polish Mockups</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Forum&display=swap');
+
+      :root {
+        --asset-plaque-title: url('../../../packages/cavebook-ui/src/assets/slices/plaque-title.png');
+        --asset-panel-parchment: url('../../../packages/cavebook-ui/src/assets/slices/panel-parchment.png');
+        --asset-panel-stone: url('../../../packages/cavebook-ui/src/assets/slices/panel-stone.png');
+        --asset-composer: url('../../../packages/cavebook-ui/src/assets/slices/composer-bar.png');
+        --asset-portrait: url('../../../packages/cavebook-ui/src/assets/slices/portrait-medallion.png');
+        --asset-phone: url('../../../packages/cavebook-ui/src/assets/slices/button-phone.png');
+        --asset-video: url('../../../packages/cavebook-ui/src/assets/slices/button-video.png');
+        --asset-more: url('../../../packages/cavebook-ui/src/assets/slices/button-more.png');
+        --asset-profile: url('../../../packages/cavebook-ui/src/assets/slices/tile-profile.png');
+        --asset-mute: url('../../../packages/cavebook-ui/src/assets/slices/tile-mute.png');
+        --asset-search: url('../../../packages/cavebook-ui/src/assets/slices/tile-search.png');
+        --ink: #21130c;
+        --ink-soft: #4e3322;
+        --line: rgba(71, 43, 24, 0.6);
+        --ember: #a44f24;
+        --moss: #587337;
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 20% 8%, rgba(203, 143, 74, 0.18), transparent 24rem),
+          linear-gradient(180deg, #2b1a11, #140c08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      .board {
+        display: grid;
+        gap: 28px;
+        max-width: 1500px;
+        margin: 0 auto;
+        padding: 28px;
+      }
+
+      .board__intro {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 24px;
+        align-items: end;
+        color: #f4dfbd;
+      }
+
+      .board__intro h1 {
+        margin: 0;
+        font-family: Forum, Georgia, serif;
+        font-size: clamp(2.6rem, 5vw, 5rem);
+        font-weight: 400;
+        line-height: 0.92;
+      }
+
+      .board__intro p {
+        max-width: 46rem;
+        margin: 8px 0 0;
+        color: rgba(244, 223, 189, 0.82);
+        font-size: 1.2rem;
+        line-height: 1.3;
+      }
+
+      .scorecard {
+        display: grid;
+        min-width: 320px;
+        gap: 8px;
+        padding: 14px 18px;
+        border: 2px solid rgba(209, 165, 103, 0.28);
+        background: rgba(38, 23, 15, 0.68);
+        box-shadow: inset 0 0 0 1px rgba(255, 226, 181, 0.08);
+      }
+
+      .scorecard span {
+        color: rgba(244, 223, 189, 0.86);
+        font-size: 0.98rem;
+      }
+
+      .mockups {
+        display: grid;
+        gap: 28px;
+      }
+
+      .mockup {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 14px;
+        min-height: 760px;
+        padding: 18px;
+        border: 5px solid rgba(76, 47, 27, 0.96);
+        border-radius: 34px;
+        background:
+          radial-gradient(circle at 50% -12%, rgba(190, 124, 66, 0.16), transparent 24%),
+          linear-gradient(180deg, rgba(74, 44, 27, 0.96), rgba(33, 20, 13, 0.98));
+        box-shadow: 0 30px 70px rgba(8, 3, 1, 0.5);
+      }
+
+      .mockup__stage {
+        position: relative;
+        display: grid;
+        grid-template-rows: auto 1fr auto auto;
+        min-height: 720px;
+        padding: 20px 24px 16px;
+        background:
+          radial-gradient(circle at 55% 30%, rgba(130, 76, 38, 0.08), transparent 24%),
+          var(--asset-panel-parchment) center / 126% 114% no-repeat,
+          linear-gradient(180deg, #ddbb8d, #b68458);
+        overflow: hidden;
+      }
+
+      .mockup__stage::before {
+        content: '';
+        position: absolute;
+        inset: 18px;
+        border: 1px solid rgba(91, 57, 31, 0.22);
+        pointer-events: none;
+      }
+
+      .mockup__stage::after {
+        content: '';
+        position: absolute;
+        left: 60px;
+        bottom: 136px;
+        width: 260px;
+        height: 340px;
+        opacity: 0.16;
+        background:
+          radial-gradient(circle at 48% 58%, rgba(121, 66, 31, 0.72) 0 8%, transparent 9%),
+          radial-gradient(circle at 30% 68%, rgba(121, 66, 31, 0.36) 0 24%, transparent 25%),
+          radial-gradient(circle at 68% 68%, rgba(121, 66, 31, 0.36) 0 24%, transparent 25%);
+        clip-path: polygon(8% 78%, 13% 62%, 20% 48%, 30% 36%, 46% 28%, 62% 31%, 75% 41%, 84% 57%, 86% 72%, 80% 84%, 68% 90%, 52% 92%, 34% 90%, 18% 85%);
+      }
+
+      .topline {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .identity {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .avatar {
+        width: 58px;
+        height: 58px;
+        border: 3px solid #794b2d;
+        border-radius: 999px;
+        background: var(--asset-portrait) center / cover no-repeat;
+      }
+
+      .identity h2,
+      .rail h2,
+      .mockup__label h2 {
+        margin: 0;
+        font-family: Forum, Georgia, serif;
+        font-weight: 400;
+      }
+
+      .identity h2 {
+        font-size: 2.25rem;
+        line-height: 0.95;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 3px 0 0;
+        color: var(--ink-soft);
+        font-size: 1.05rem;
+        font-weight: 700;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #6f9439, #466120);
+        box-shadow: 0 0 0 2px rgba(68, 41, 22, 0.32);
+      }
+
+      .tools {
+        display: flex;
+        gap: 12px;
+      }
+
+      .stone-button {
+        width: 64px;
+        height: 64px;
+        border: 0;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 116% 116%;
+        filter: drop-shadow(0 8px 10px rgba(45, 25, 13, 0.22));
+      }
+
+      .stone-button--phone {
+        background-image: var(--asset-phone);
+      }
+
+      .stone-button--video {
+        background-image: var(--asset-video);
+      }
+
+      .stone-button--more {
+        background-image: var(--asset-more);
+      }
+
+      .chat-field {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        align-content: start;
+        height: 470px;
+        margin: 18px 8px 12px;
+        padding: 28px 26px 36px;
+        overflow: hidden;
+        scrollbar-color: rgba(73, 45, 25, 0.34) transparent;
+      }
+
+      .chat-field--bounded {
+        border: 2px solid rgba(88, 56, 32, 0.24);
+        background:
+          linear-gradient(180deg, rgba(243, 225, 190, 0.22), rgba(184, 132, 80, 0.06)),
+          rgba(255, 239, 207, 0.04);
+        box-shadow: inset 0 16px 28px rgba(61, 36, 20, 0.06);
+      }
+
+      .chat-field--open {
+        border: 0;
+        background: transparent;
+      }
+
+      .thread {
+        display: grid;
+        gap: 18px;
+      }
+
+      .bubble {
+        max-width: min(520px, 78%);
+      }
+
+      .bubble--out {
+        justify-self: end;
+      }
+
+      .bubble__author {
+        margin: 0 0 5px;
+        color: rgba(68, 43, 26, 0.9);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .bubble__body {
+        margin: 0;
+        padding: 15px 18px;
+        border: 2px solid rgba(92, 56, 31, 0.7);
+        background:
+          radial-gradient(circle at top, rgba(255, 244, 220, 0.24), transparent 44%),
+          linear-gradient(180deg, rgba(242, 221, 190, 0.96), rgba(211, 170, 121, 0.9));
+        clip-path: polygon(2% 10%, 9% 3%, 91% 2%, 99% 15%, 98% 86%, 91% 98%, 8% 96%, 1% 84%);
+        color: rgba(39, 24, 15, 0.98);
+        font-size: 1.22rem;
+        font-weight: 700;
+        line-height: 1.28;
+        box-shadow: 0 8px 12px rgba(66, 36, 16, 0.16);
+      }
+
+      .bubble--out .bubble__body {
+        background:
+          radial-gradient(circle at top, rgba(255, 231, 197, 0.2), transparent 42%),
+          linear-gradient(180deg, rgba(225, 175, 119, 0.98), rgba(187, 119, 66, 0.92));
+      }
+
+      .composer {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: 58px 58px minmax(0, 1fr) 58px;
+        gap: 12px;
+        align-items: center;
+        min-height: 100px;
+        padding: 16px 24px;
+        background: var(--asset-composer) center / 100% 100% no-repeat;
+      }
+
+      .composer__field {
+        min-height: 56px;
+        padding: 0 20px;
+        border: 0;
+        background: rgba(245, 225, 190, 0.34);
+        color: rgba(48, 31, 20, 0.9);
+        font-family: Forum, Georgia, serif;
+        font-size: 2rem;
+      }
+
+      .composer__chip {
+        height: 56px;
+        border: 0;
+        background-position: center;
+        background-size: 116% 116%;
+        filter: drop-shadow(0 7px 10px rgba(45, 25, 13, 0.16));
+      }
+
+      .composer__chip:nth-child(1),
+      .rail-action--mute {
+        background-image: var(--asset-mute);
+      }
+
+      .composer__chip:nth-child(2),
+      .rail-action--profile {
+        background-image: var(--asset-profile);
+      }
+
+      .composer__chip:nth-child(4),
+      .rail-action--search {
+        background-image: var(--asset-search);
+      }
+
+      .statusbar {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        margin-left: 14px;
+        color: rgba(41, 27, 18, 0.9);
+        font-family: Forum, Georgia, serif;
+        font-size: 1.1rem;
+      }
+
+      .rail {
+        min-height: 720px;
+        padding: 28px 24px;
+        background:
+          var(--asset-panel-stone) center / 122% 112% no-repeat,
+          linear-gradient(180deg, #8f826f, #685948);
+        color: #1f140e;
+      }
+
+      .rail h2 {
+        text-align: center;
+        font-size: 2.1rem;
+      }
+
+      .rail__portrait {
+        width: 138px;
+        height: 138px;
+        margin: 28px auto 18px;
+        background: var(--asset-portrait) center / cover no-repeat;
+      }
+
+      .rail__handle {
+        margin: 0 0 22px;
+        text-align: center;
+        font-family: Forum, Georgia, serif;
+        font-size: 1.55rem;
+      }
+
+      .rail-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .rail-action {
+        min-height: 102px;
+        border: 0;
+        background-color: transparent;
+        background-position: center;
+        background-size: 112% 112%;
+      }
+
+      .rail-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .rail-row {
+        padding: 13px 18px;
+        border: 2px solid rgba(53, 35, 22, 0.38);
+        background: rgba(78, 49, 28, 0.22);
+        color: rgba(31, 20, 13, 0.95);
+        font-family: Forum, Georgia, serif;
+        font-size: 1.2rem;
+      }
+
+      .mockup__label {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 18px;
+        align-items: center;
+        padding: 0 8px 2px;
+        color: rgba(244, 223, 189, 0.88);
+      }
+
+      .mockup__label h2 {
+        font-size: 1.7rem;
+      }
+
+      .mockup__label p {
+        margin: 0;
+        color: rgba(244, 223, 189, 0.76);
+        font-size: 1.02rem;
+      }
+
+      .variant-compact .mockup__stage {
+        grid-template-rows: auto auto 1fr auto auto;
+      }
+
+      .variant-compact .call-tray {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: space-between;
+        margin: 12px 12px 0;
+        padding: 10px 15px;
+        border: 2px solid rgba(93, 56, 30, 0.44);
+        background: rgba(216, 167, 106, 0.62);
+        font-weight: 700;
+      }
+
+      .variant-dense .chat-field {
+        height: 545px;
+      }
+
+      .variant-dense .identity h2 {
+        font-size: 1.95rem;
+      }
+
+      .variant-dense .tools .stone-button {
+        width: 56px;
+        height: 56px;
+      }
+
+      @media (max-width: 980px) {
+        .board__intro,
+        .mockup,
+        .mockup__label {
+          grid-template-columns: 1fr;
+        }
+
+        .rail {
+          min-height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="board">
+      <header class="board__intro">
+        <div>
+          <h1>Cavebook UX Polish Mockups</h1>
+          <p>
+            Three cleaned-up directions that keep the carved parchment interface while improving text contrast,
+            control hierarchy, and the shape of the live chat area.
+          </p>
+        </div>
+        <div class="scorecard">
+          <span>Major defects: low text contrast, competing control weights, and too much visual noise around the thread.</span>
+          <span>Main deviation: the reference reads as one physical object, while the app can still feel like web panels.</span>
+        </div>
+      </header>
+
+      <section class="mockups">
+        <article class="mockup">
+          <div class="mockup__label">
+            <h2>Mockup A: Open parchment thread</h2>
+            <p>Best match to the reference: fewer visible container edges, stronger bubble ink, carved asset controls.</p>
+          </div>
+          <section class="mockup__stage">
+            <div class="topline">
+              <div class="identity">
+                <div class="avatar"></div>
+                <div>
+                  <h2>Ted Olney-Bell</h2>
+                  <p class="status"><span class="dot"></span>Active now</p>
+                </div>
+              </div>
+              <div class="tools">
+                <button class="stone-button stone-button--phone" aria-label="Call"></button>
+                <button class="stone-button stone-button--video" aria-label="Video"></button>
+                <button class="stone-button stone-button--more" aria-label="More"></button>
+              </div>
+            </div>
+            <div class="chat-field chat-field--open">
+              <div class="thread">
+                <div class="bubble">
+                  <p class="bubble__author">Ted Olney-Bell</p>
+                  <p class="bubble__body">What was the prompt you used for the one of me holding the fish?</p>
+                </div>
+                <div class="bubble bubble--out">
+                  <p class="bubble__author">You</p>
+                  <p class="bubble__body">It's very good at generating UIs.</p>
+                </div>
+                <div class="bubble">
+                  <p class="bubble__author">Ted Olney-Bell</p>
+                  <p class="bubble__body">The cave-painting atmosphere is working, but the sidebar stone still needs more depth.</p>
+                </div>
+              </div>
+            </div>
+            <div class="composer">
+              <button class="composer__chip" aria-label="Mic"></button>
+              <button class="composer__chip" aria-label="Gesture"></button>
+              <div class="composer__field">Aa</div>
+              <button class="composer__chip" aria-label="Send"></button>
+            </div>
+            <div class="statusbar"><span class="dot"></span>Connected to Cavebook</div>
+          </section>
+          <aside class="rail">
+            <h2>Ted Olney-Bell</h2>
+            <div class="rail__portrait"></div>
+            <p class="rail__handle">@ted.olneybell</p>
+            <div class="rail-actions">
+              <button class="rail-action rail-action--profile"></button>
+              <button class="rail-action rail-action--mute"></button>
+              <button class="rail-action rail-action--search"></button>
+            </div>
+            <div class="rail-list">
+              <div class="rail-row">Chat info</div>
+              <div class="rail-row">Customize chat</div>
+              <div class="rail-row">Media & files</div>
+              <div class="rail-row">Privacy & support</div>
+            </div>
+          </aside>
+        </article>
+
+        <article class="mockup variant-compact">
+          <div class="mockup__label">
+            <h2>Mockup B: Compact session state</h2>
+            <p>Keeps call/mute state visible without letting the call tray dominate the chat surface.</p>
+          </div>
+          <section class="mockup__stage">
+            <div class="topline">
+              <div class="identity">
+                <div class="avatar"></div>
+                <div>
+                  <h2>Ted Olney-Bell</h2>
+                  <p class="status"><span class="dot"></span>Voice ritual open</p>
+                </div>
+              </div>
+              <div class="tools">
+                <button class="stone-button stone-button--phone" aria-label="Call"></button>
+                <button class="stone-button stone-button--video" aria-label="Video"></button>
+                <button class="stone-button stone-button--more" aria-label="More"></button>
+              </div>
+            </div>
+            <div class="call-tray">
+              <span>Local voice ritual</span>
+              <span>00:42</span>
+            </div>
+            <div class="chat-field chat-field--bounded">
+              <div class="thread">
+                <div class="bubble">
+                  <p class="bubble__author">Ted Olney-Bell</p>
+                  <p class="bubble__body">Try keeping the tablet stack tighter so it feels pinned instead of pasted on.</p>
+                </div>
+                <div class="bubble bubble--out">
+                  <p class="bubble__author">You</p>
+                  <p class="bubble__body">Agreed. The live thread should be a fixed parchment field.</p>
+                </div>
+              </div>
+            </div>
+            <div class="composer">
+              <button class="composer__chip" aria-label="Mic"></button>
+              <button class="composer__chip" aria-label="Gesture"></button>
+              <div class="composer__field">Aa</div>
+              <button class="composer__chip" aria-label="Send"></button>
+            </div>
+            <div class="statusbar"><span class="dot"></span>Connected to Cavebook</div>
+          </section>
+          <aside class="rail">
+            <h2>Session marks</h2>
+            <div class="rail__portrait"></div>
+            <p class="rail__handle">Muted locally: no</p>
+            <div class="rail-list">
+              <div class="rail-row">Call log will archive when ended</div>
+              <div class="rail-row">Replies continue locally</div>
+              <div class="rail-row">Thread stays in this browser</div>
+            </div>
+          </aside>
+        </article>
+
+        <article class="mockup variant-dense">
+          <div class="mockup__label">
+            <h2>Mockup C: Dense readable workspace</h2>
+            <p>More room for messages, smaller chrome, and a stronger inspector hierarchy for laptop-sized screens.</p>
+          </div>
+          <section class="mockup__stage">
+            <div class="topline">
+              <div class="identity">
+                <div class="avatar"></div>
+                <div>
+                  <h2>Ted Olney-Bell</h2>
+                  <p class="status"><span class="dot"></span>Scratching a reply</p>
+                </div>
+              </div>
+              <div class="tools">
+                <button class="stone-button stone-button--phone" aria-label="Call"></button>
+                <button class="stone-button stone-button--video" aria-label="Video"></button>
+                <button class="stone-button stone-button--more" aria-label="More"></button>
+              </div>
+            </div>
+            <div class="chat-field chat-field--open">
+              <div class="thread">
+                <div class="bubble">
+                  <p class="bubble__author">Ted Olney-Bell</p>
+                  <p class="bubble__body">I asked because the fish portrait is still the strongest one.</p>
+                </div>
+                <div class="bubble bubble--out">
+                  <p class="bubble__author">You</p>
+                  <p class="bubble__body">Let's keep the texture, but make every word easier to read.</p>
+                </div>
+                <div class="bubble">
+                  <p class="bubble__author">Ted Olney-Bell</p>
+                  <p class="bubble__body">That tracks. The hand-carved framing is doing more of the work now.</p>
+                </div>
+              </div>
+            </div>
+            <div class="composer">
+              <button class="composer__chip" aria-label="Mic"></button>
+              <button class="composer__chip" aria-label="Gesture"></button>
+              <div class="composer__field">Aa</div>
+              <button class="composer__chip" aria-label="Send"></button>
+            </div>
+            <div class="statusbar"><span class="dot"></span>Connected to Cavebook</div>
+          </section>
+          <aside class="rail">
+            <h2>Profile marks</h2>
+            <div class="rail__portrait"></div>
+            <p class="rail__handle">@ted.olneybell</p>
+            <div class="rail-list">
+              <div class="rail-row">92 friends</div>
+              <div class="rail-row">Artifacts: 4</div>
+              <div class="rail-row">Guilds: 7</div>
+            </div>
+          </aside>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
