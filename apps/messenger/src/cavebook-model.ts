@@ -73,7 +73,7 @@ export const seedMessages = [
     threadId: MESSENGER_THREAD_ID,
     author: 'You',
     side: 'outgoing',
-    body: "It's very good at generating UIs.",
+    body: "It's very good at generating UIs",
     createdAt: 2,
   },
 ] as const satisfies readonly ChatMessage[]
@@ -89,8 +89,8 @@ export const seedThread: ChatThread = {
 export const seedArtifacts = [
   {
     id: 'artifact-soot-feed',
-    title: "It's very good at generating UIs",
-    body: 'Pinned soot tablet with a carved timeline, hand-fed replies, and ritual search rail.',
+    title: 'Messenger shell v3.7',
+    body: 'Home, Explore, Messages, Grok, Bookmarks, Communities, Premium, Verified Orgs, Profile, More.',
     art: 'sootTablet',
     className: 'artifact-card artifact-card--wide',
     category: 'notes',
@@ -99,8 +99,8 @@ export const seedArtifacts = [
   },
   {
     id: 'artifact-link-tablet',
-    title: 'Here was the chat',
-    body: 'https://chatgpt.com/share/69e86442-93b8-83e8-9cb8-22ff2254e76d',
+    title: 'Profile shrine v2.4',
+    body: 'End-to-end encrypted by Sacred Fire with carved profile, mute, and search stones.',
     art: 'linkTablet',
     className: 'artifact-card artifact-card--link',
     category: 'marks',
@@ -109,8 +109,8 @@ export const seedArtifacts = [
   },
   {
     id: 'artifact-workbench',
-    title: "Here's Codex in 1995",
-    body: 'Stone workbench for projects, folders, patch previews, and camp-console output.',
+    title: 'Codex patch note',
+    body: 'Fixed crash when reading mammoth_eval.log on return-left gesture. Improved glyph rendering in low firelight.',
     art: 'workbenchTablet',
     className: 'artifact-card artifact-card--workbench',
     category: 'logs',
@@ -147,6 +147,11 @@ export const profilePosts = [
     id: 'post-cave-ui-fragment',
     title: 'Pinned a cave UI fragment',
     body: 'Tabbed stone interfaces now standardized across camp tooling.',
+  },
+  {
+    id: 'post-mammoth-hunt',
+    title: 'Posted a new mammoth hunt sketch',
+    body: 'KLINDOROPODOS sighting confirmed near the western ridgeline.',
   },
 ] as const satisfies readonly ProfilePost[]
 

@@ -505,7 +505,7 @@ export function selectArtifactCount(state: CavebookState) {
 export function selectProfileStats(state: CavebookState) {
   return {
     friends: state.isFollowing ? 93 : 92,
-    artifacts: selectArtifactCount(state),
+    artifacts: selectArtifactCount(state) + 11,
     guilds: 7,
   }
 }

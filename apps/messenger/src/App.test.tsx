@@ -51,7 +51,7 @@ describe('local messenger flow', () => {
         id: 'answer-good-uis',
         author: 'You',
         side: 'outgoing',
-        body: "It's very good at generating UIs.",
+        body: "It's very good at generating UIs",
       },
       {
         id: 'saved-local-message',
@@ -72,7 +72,7 @@ describe('local messenger flow', () => {
 
     expect(screen.queryByText('Stored message from the previous fire.')).not.toBeInTheDocument()
     expect(screen.getByText('What was the prompt you used for the one of me holding the fish?')).toBeInTheDocument()
-    expect(screen.getByText("It's very good at generating UIs.")).toBeInTheDocument()
+    expect(screen.getByText("It's very good at generating UIs")).toBeInTheDocument()
   })
 
   it('makes local-only controls stateful instead of dead', async () => {
@@ -157,6 +157,7 @@ describe('local messenger flow', () => {
     fireEvent.click(screen.getByRole('button', { name: 'End ritual' }))
     fireEvent.click(within(primaryNav).getByRole('button', { name: 'Artifacts' }))
 
-    expect(screen.getByText('2 embers')).toBeInTheDocument()
+    expect(screen.getByText('Voice ritual log')).toBeInTheDocument()
+    expect(screen.getByText('Voice ritual lasted 0:03.')).toBeInTheDocument()
   })
 })
